@@ -37,16 +37,18 @@ packetname = $(if $(1),$(addprefix $(OBJPREFIX),$(1)),$(OBJPREFIX))
 
 # (file, cc[, flags, dir])
 define cc_template
-$$(call todep,$(1)): $(1) | $$(dir $$@)
-	$(2) -I$$(dir $(1)) $(3) -MM $$< -MT "$$(patsubst %.d,%.o,$$@) $$@"> $$@
-$$(call toobj,$(1)): $(1) | $$(dir $$@)
-	$(2) -I$$(dir $(1)) $(3) -c $$< -o $$@
-ALLOBJS += $$(call toobj,$(1))
+$$(info $$@)
+$$(call todep,$(1),$(4)): $(1) | $$$$(dir $$$$@)
+	@$(2) -I$$(dir $(1)) $(3) -MM $$< -MT "$$(patsubst %.d,%.o,$$@) $$@"> $$@
+$$(call toobj,$(1),$(4)): $(1) | $$$$(dir $$$$@)
+	@echo + cc $$<
+	$(V)$(2) -I$$(dir $(1)) $(3) -c $$< -o $$@
+ALLOBJS += $$(call toobj,$(1),$(4))
 endef
 
 # (#files, cc[, flags, dir])
 define do_cc_compile
-$$(foreach f,$(1),$$(eval $$(call cc_template,$$(f),$(2),$(3))))
+$$(foreach f,$(1),$$(eval $$(call cc_template,$$(f),$(2),$(3),$(4))))
 endef
 
 define do_add_target
@@ -55,7 +57,7 @@ TARGETS += $$(__target__)
 endef
 
 # compile file: (#files, cc[, flags])
-cc_compile = $(eval $(call do_cc_compile,$(1),$(2),$(3)))
+cc_compile = $(eval $(call do_cc_compile,$(1),$(2),$(3),$(4)))
 
 add_target = $(eval $(call do_add_target,$(1)))
 
@@ -75,6 +77,16 @@ $(bootblock): $(call toobj,$(bootfiles)) | $(call tobin,sign)
 $(call add_target,bootblock)
 
 TARGETS: $(TARGETS)
+
+define finish_all
+ALLDEPS = $$(ALLOBJS:.o=.d)
+$$(sort $$(dir $$(ALLOBJS)) $(BINDIR)$(SLASH) $(OBJDIR)$(SLASH)):
+	@$(MKDIR) $$@
+endef
+
+$(eval $(call finish_all))
+
+-include $(ALLDEPS)
 
 clean:
 	rm -f boot/*.o
