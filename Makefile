@@ -1,11 +1,18 @@
+.SECONDEXPANSION:
+
 INC=boot
+
+MKDIR := mkdir -p
+RM    := rm -f
 
 AS := as
 CC := gcc
 LD := ld
+HOSTCC := gcc
 
 CFLAGS  := -Wall -O2 -fomit-frame-pointer -fno-builtin -ggdb -m32 -gstabs
 LDFLAGS	:= -m $(shell $(LD) -V | grep elf_i386 2>/dev/null) -nostdlib
+HOSTCFLAGS := -g -Wall -O2
 
 CTYPE	:= c s
 
@@ -23,52 +30,88 @@ listf_cc = $(call listf,$(1),$(CTYPE))
 # (name1 name2...) -> bin/$(name1) bin/$(name2)
 tobin = $(addprefix $(BINDIR)$(SLASH),$(1))
 
-# (name1.* name2.*...) -> bin/name1.o bin/name2.o
-# (name1.* name2.*..., dir) -> bin/$(dir)/$(name1).o bin/$(dir)/$(name2).o)
+# (name1.* name2.*...) -> obj/name1.o obj/name2.o
+# (name1.* name2.*..., dir) -> obj/$(dir)/$(name1).o obj/$(dir)/$(name2).o)
 toobj = $(addprefix $(OBJDIR)$(SLASH)$(if $(2),$(2)$(SLASH)),$(addsuffix .o,$(basename $(1))))
 
-# (name1.* name2.*...) -> bin/name1.d bin/name2.d
-# (name1.* name2.*..., dir) -> bin/$(dir)/$(name1).d bin/$(dir)/$(name2).d)
+# (name1.* name2.*...) -> obj/name1.d obj/name2.d
+# (name1.* name2.*..., dir) -> obj/$(dir)/$(name1).d obj/$(dir)/$(name2).d)
 todep = $(patsubst %.o,%.d,$(call toobj,$(1),$(2)))
 
 # () -> __objs_
 # (name1 name2) -> __objs_$(name1), __objs_$(name2)
 packetname = $(if $(1),$(addprefix $(OBJPREFIX),$(1)),$(OBJPREFIX))
 
+# The reason why eval+default is needed is because the format needs to be guaranteed.
+# Simple call and = cannot print newline symbols.
+
 # (file, cc[, flags, dir])
+# obj/dir/xxx.d: xxx.c | dir(obj/dir/xxx)
+#	cc -Idir(xxx) -MM $$< -MT "$$(patsubst %.d,%.o,$$@) $$@"> $$@
+# obj/dir/xxx.o: xxx.c | dir(obj/dir/xxx)
+# ALLOBJS += obj/dir/xxx.o
 define cc_template
-$$(info $$@)
+$$(info cc_template $(1),$(2),$(3),$(4),$(5))
 $$(call todep,$(1),$(4)): $(1) | $$$$(dir $$$$@)
-	@$(2) -I$$(dir $(1)) $(3) -MM $$< -MT "$$(patsubst %.d,%.o,$$@) $$@"> $$@
+	$(2) -I$$(dir $(1)) $(3) -MM $$< -MT "$$(patsubst %.d,%.o,$$@) $$@"> $$@
 $$(call toobj,$(1),$(4)): $(1) | $$$$(dir $$$$@)
-	@echo + cc $$<
-	$(V)$(2) -I$$(dir $(1)) $(3) -c $$< -o $$@
-ALLOBJS += $$(call toobj,$(1),$(4))
+	$(2) -I$$(dir $(1)) $(3) -c $$< -o $$@
+ALLOBJS += $$(call toobj,$(1))
 endef
 
 # (#files, cc[, flags, dir])
-define do_cc_compile
-$$(foreach f,$(1),$$(eval $$(call cc_template,$$(f),$(2),$(3),$(4))))
+do_cc_compile = $$(foreach f,$(1),$$(eval $$(call cc_template,$$(f),$(2),$(3),$(4))))
+
+# TARGETS += bin/xxx
+# bin/xxx: [packet] | bin/
+# bin/xxx: xxx.o | bin/
+define do_add_target
+$$(info do_add_target $(1),$(2),$(3),$(4),$(5))
+__target__ = $(call tobin,$(1))
+__objs__ = $$(foreach p,$(call packetname,$(2)),$$($$(p))) $(3)
+$$(info $$(__target__) $$(__objs__))
+TARGETS += $$(__target__)
+$$(__target__): $$(__objs__) | $$$$(dir $$$$@)
+ifneq ($(4),)
+	$(4) $(5) $$^ -o $$@
+endif
+endef
+add_target = $(eval $(call do_add_target,$(1),$(2),$(3),$(4),$(5)))
+add_target_host = $(call add_target,$(1),$(2),$(3),$(HOSTCC),$(HOSTCFLAGS))
+
+$(info $(call do_add_target))
+
+# [packet] := 
+# [packet] += xxx.o
+define do_add_files
+$$(info do_add_files $(1),$(2),$(3),$(4),$(5))
+__packet__ := $(call packetname,$(4))
+$$(info $$(__packet__))
+ifeq ($$(origin $$(__packet__)),undefined)
+$$(__packet__) :=
+endif
+__objs__ := $(call toobj,$(1),$(5))
+$$(foreach f,$(1),$$(eval $$(call cc_template,$$(f),$(2),$(3),$(5))))
+$$(__packet__) += $$(__objs__)
 endef
 
-define do_add_target
-__target__ = $(call tobin,$(1))
-TARGETS += $$(__target__)
-endef
+# add files to packet: (#files, cc[, flags, packet, dir])
+add_files = $(eval $(call do_add_files,$(1),$(2),$(3),$(4),$(5)))
+add_files_cc = $(call add_files,$(1),$(CC),$(CFLAGS) $(3),$(2),$(4))
+add_files_host = $(call add_files,$(1),$(HOSTCC),$(HOSTCFLAGS),$(2),$(3))
 
 # compile file: (#files, cc[, flags])
-cc_compile = $(eval $(call do_cc_compile,$(1),$(2),$(3),$(4)))
+cc_compile = $(eval $(call do_cc_compile,$(1),$(2),$(3)))
 
-add_target = $(eval $(call do_add_target,$(1)))
-
+$(info $(call cc_template))
 
 bootfiles = $(call listf_cc,boot)
-$(info $(bootfiles))
 $(foreach f,$(bootfiles),$(call cc_compile,$(f),$(CC),$(CFLAGS) -Os -nostdinc))
 
 bootblock = $(call tobin,bootblock)
 
 $(bootblock): $(call toobj,$(bootfiles)) | $(call tobin,sign)
+	@echo + ld $@
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C00 $^ -o $(call toobj,bootblock)
 #	@$(OBJDUMP) -S $(call objfile,bootblock) > $(call asmfile,bootblock)
 #	@$(OBJCOPY) -S -O binary $(call objfile,bootblock) $(call outfile,bootblock)
@@ -76,17 +119,20 @@ $(bootblock): $(call toobj,$(bootfiles)) | $(call tobin,sign)
 
 $(call add_target,bootblock)
 
-TARGETS: $(TARGETS)
+$(call add_files_host,tools/sign.c,sign,sign)
+$(call add_target_host,sign,sign)
 
-define finish_all
+define do_make_dir
 ALLDEPS = $$(ALLOBJS:.o=.d)
 $$(sort $$(dir $$(ALLOBJS)) $(BINDIR)$(SLASH) $(OBJDIR)$(SLASH)):
 	@$(MKDIR) $$@
 endef
+make_dir = $(eval $(call do_make_dir))
 
-$(eval $(call finish_all))
+$(call make_dir)
 
--include $(ALLDEPS)
+TARGETS: $(TARGETS)
+.DEFAULT_GOAL := TARGETS
 
 clean:
-	rm -f boot/*.o
+	-$(RM) -r $(OBJDIR) $(BINDIR)
