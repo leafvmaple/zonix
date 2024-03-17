@@ -102,7 +102,8 @@ $(foreach f,$(bootfiles),$(call cc_compile,$(f),$(CC),$(CFLAGS) -Os -nostdinc))
 bootblock = $(call tobin,bootblock)
 
 $(bootblock): $(call toobj,$(bootfiles)) | $(call tobin,sign)
-	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C00 $^ -o $(call toobj,bootblock)
+	@echo + ld $@
+	@$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C00 $^ -o $(call toobj,bootblock)
 #	@$(OBJDUMP) -S $(call objfile,bootblock) > $(call asmfile,bootblock)
 #	@$(OBJCOPY) -S -O binary $(call objfile,bootblock) $(call outfile,bootblock)
 #	@$(call totarget,sign) $(call outfile,bootblock) $(bootblock)
