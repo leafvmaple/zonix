@@ -51,12 +51,11 @@ packetname = $(if $(1),$(addprefix $(OBJPREFIX),$(1)),$(OBJPREFIX))
 # obj/dir/xxx.o: xxx.c | dir(obj/dir/xxx)
 # ALLOBJS += obj/dir/xxx.o
 define cc_template
-$$(info cc_template $(1),$(2),$(3),$(4),$(5))
 $$(call todep,$(1),$(4)): $(1) | $$$$(dir $$$$@)
 	$(2) -I$$(dir $(1)) $(3) -MM $$< -MT "$$(patsubst %.d,%.o,$$@) $$@"> $$@
 $$(call toobj,$(1),$(4)): $(1) | $$$$(dir $$$$@)
 	$(2) -I$$(dir $(1)) $(3) -c $$< -o $$@
-ALLOBJS += $$(call toobj,$(1))
+ALLOBJS += $$(call toobj,$(1),$(4))
 endef
 
 # (#files, cc[, flags, dir])
@@ -66,10 +65,8 @@ do_cc_compile = $$(foreach f,$(1),$$(eval $$(call cc_template,$$(f),$(2),$(3),$(
 # bin/xxx: [packet] | bin/
 # bin/xxx: xxx.o | bin/
 define do_add_target
-$$(info do_add_target $(1),$(2),$(3),$(4),$(5))
 __target__ = $(call tobin,$(1))
 __objs__ = $$(foreach p,$(call packetname,$(2)),$$($$(p))) $(3)
-$$(info $$(__target__) $$(__objs__))
 TARGETS += $$(__target__)
 $$(__target__): $$(__objs__) | $$$$(dir $$$$@)
 ifneq ($(4),)
@@ -79,14 +76,10 @@ endef
 add_target = $(eval $(call do_add_target,$(1),$(2),$(3),$(4),$(5)))
 add_target_host = $(call add_target,$(1),$(2),$(3),$(HOSTCC),$(HOSTCFLAGS))
 
-$(info $(call do_add_target))
-
 # [packet] := 
 # [packet] += xxx.o
 define do_add_files
-$$(info do_add_files $(1),$(2),$(3),$(4),$(5))
 __packet__ := $(call packetname,$(4))
-$$(info $$(__packet__))
 ifeq ($$(origin $$(__packet__)),undefined)
 $$(__packet__) :=
 endif
@@ -103,15 +96,12 @@ add_files_host = $(call add_files,$(1),$(HOSTCC),$(HOSTCFLAGS),$(2),$(3))
 # compile file: (#files, cc[, flags])
 cc_compile = $(eval $(call do_cc_compile,$(1),$(2),$(3)))
 
-$(info $(call cc_template))
-
 bootfiles = $(call listf_cc,boot)
 $(foreach f,$(bootfiles),$(call cc_compile,$(f),$(CC),$(CFLAGS) -Os -nostdinc))
 
 bootblock = $(call tobin,bootblock)
 
 $(bootblock): $(call toobj,$(bootfiles)) | $(call tobin,sign)
-	@echo + ld $@
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C00 $^ -o $(call toobj,bootblock)
 #	@$(OBJDUMP) -S $(call objfile,bootblock) > $(call asmfile,bootblock)
 #	@$(OBJCOPY) -S -O binary $(call objfile,bootblock) $(call outfile,bootblock)
