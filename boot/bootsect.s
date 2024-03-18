@@ -1,5 +1,5 @@
-BOOTSEG = 0x07c0
-INITSEG = 0x9000
+.set BOOTSEG, 0x07c0
+.set INITSEG, 0x9000
 
 .globl _start
 # move [0x07C00] 512 Byte to [0x90000]
