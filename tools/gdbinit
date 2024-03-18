@@ -1,0 +1,2 @@
+file bin/bootblock
+target remote :1234

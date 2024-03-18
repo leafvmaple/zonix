@@ -1,1 +1,7 @@
 # zonix
+
+## bulid
+```
+make .
+```
+
