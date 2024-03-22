@@ -28,17 +28,20 @@ obj/boot/:
 obj/sign/tools/:
 	@mkdir -p $@
 
-obj/boot/bootsects.o: boot/bootsect.s | $$(dir $$@)
-	$(CC) -Iboot $(CFLAGS) -Ilibs/ -Os -c $< -o $@
+obj/boot/bootsects.o: boot/bootsect.S | $$(dir $$@)
+	$(CC) -Iboot/ $(CFLAGS) -Ilibs/ -Os -c $< -o $@
+
+obj/boot/bootsetup.o: boot/bootsetup.c | $$(dir $$@)
+	$(CC) -Iboot/ $(CFLAGS) -Ilibs/ -Os -c $< -o $@
 
 obj/sign/tools/sign.o: tools/sign.c | $$(dir $$@)
-	$(HOSTCC) -Itools $(HOSTCFLAGS) -c $^ -o $@
+	$(HOSTCC) -Itools/ $(HOSTCFLAGS) -c $^ -o $@
 
 bin/sign: obj/sign/tools/sign.o | $$(dir $$@)
 	$(HOSTCC) $(HOSTCFLAGS) $^ -o $@
 
-bin/bootblock: obj/boot/bootsects.o | bin/sign $$(dir $$@)
-	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C00 $^ -o obj/bootblock.o
+bin/bootblock: obj/boot/bootsects.o obj/boot/bootsetup.o | bin/sign $$(dir $$@)
+	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x7C00 $^ -o obj/bootblock.o
 	$(OBJDUMP) -S obj/bootblock.o > obj/bootblock.asm
 	$(OBJCOPY) -S -O binary obj/bootblock.o obj/bootblock.out
 #	$(OBJDUMP) -t obj/bootblock.out | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > obj/bootblock.sym
