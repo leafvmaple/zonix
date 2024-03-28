@@ -21,5 +21,10 @@
 #define STA_R       0x2     // Readable (executable segments)
 #define STA_A       0x1     // Accessed
 
+
+#define KERNEL_ENTRY      0x1000
+#define KERNEL_SECTORS    10000
+
+
 #endif /* !__BOOT_ASM_H__ */
 
