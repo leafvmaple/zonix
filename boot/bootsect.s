@@ -66,7 +66,7 @@ protcseg:
     movl $0x00, %ebp
     movl $_start, %esp
     # call bootmain
-    call KERNEL_ENTRY
+    call 0x10000
 
 	# If bootmain returns (it shouldn't), loop.
 spin:
