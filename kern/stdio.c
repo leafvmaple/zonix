@@ -2,6 +2,6 @@
 #include "console.h"
 
 int cprintf(const char *s) {
-    while (s++)
-        cons_putc(*s);
+    while (*s)
+        cons_putc(*s++);
 }

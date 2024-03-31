@@ -20,3 +20,7 @@ static inline void insl(uint32_t port, void *addr, int cnt) {
             : "d" (port), "0" (addr), "1" (cnt)
             : "memory", "cc");
 }
+
+static inline void outb(uint16_t port, uint8_t data) {
+    asm volatile ("outb %0, %1" :: "a" (data), "d" (port));
+}

@@ -3,6 +3,7 @@
 int kern_init(void) __attribute__((noreturn));
 
 int kern_init(void) {
-    cga_init();
+    cons_init();
+    cprintf("Loading Zonix System...");
     while (1);
 }
