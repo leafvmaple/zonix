@@ -2,4 +2,4 @@
 
 #include "def.h"
 
-int cprintf(const char *s);
+int cprintf(const char *fmt, ...);
