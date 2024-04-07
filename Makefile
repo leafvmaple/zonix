@@ -29,6 +29,7 @@ CTYPE	:= c S
 # dirs, #types
 # $filter(%.type1 %.type2, dir1/* dir2/*)
 listf = $(filter $(if $(2),$(addprefix %.,$(2)),%), $(wildcard $(addsuffix $(SLASH)*,$(1))))
+
 # dirs
 # $filter(%.c %.S, dir1/* dir2/*)
 listf_cc = $(call listf,$(1),$(CTYPE))
@@ -112,7 +113,7 @@ boot = $(call tobin,bootblock)
 BOBJS = $(call toobj,$(bootfiles))
 
 $(boot): $(BOBJS) | $(call tobin,sign)
-	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x7C00 $^ -o $(call toobj,bootblock)
+	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x0 $^ -o $(call toobj,bootblock)
 	$(OBJDUMP) -S obj/bootblock.o > obj/bootblock.asm
 	$(OBJCOPY) -S -O binary obj/bootblock.o obj/bootblock.out
 	bin/sign obj/bootblock.out $@
@@ -129,7 +130,7 @@ bin/sign: obj/sign/tools/sign.o | $$(dir $$@)
 	$(HOSTCC) $(HOSTCFLAGS) $^ -o $@
 
 bin/ucore.img: bin/bootblock bin/kernel | $$(dir $$@)
-	dd if=/dev/zero of=$@ count=10000
+	dd if=/dev/zero of=$@ count=10080
 	dd if=bin/bootblock of=$@ conv=notrunc
 	dd if=bin/kernel.bin of=$@ seek=1 conv=notrunc
 
@@ -140,10 +141,13 @@ TARGETS: bin/bootblock bin/kernel bin/sign bin/ucore.img
 qemu: bin/ucore.img
 	$(QEMU) -S -no-reboot -monitor stdio -hda $<
 
-debug: bin/ucore.img
+debug-qemu: bin/ucore.img
 	$(QEMU) -S -s -parallel stdio -hda $< -serial null &
 	sleep 2
 	$(TERMINAL) -e "gdb -q -x tools/gdbinit"
+
+bochs:
+	bochs -f bochsrc.bxrc
 
 clean:
 	rm -f -r obj bin

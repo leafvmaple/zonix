@@ -11,3 +11,6 @@ sudo apt install gnome-terminal
 make .
 ```
 
+```
+bochs -f bochsrc.bxrc
+```

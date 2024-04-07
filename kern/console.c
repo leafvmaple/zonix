@@ -22,7 +22,7 @@ void cga_init() {
 void cga_putc(int c) {
     c |= 0x0700;
 
-    switch (c & 0xff) {
+    switch (c & 0xFF) {
     case '\n':
         crt_pos += CRT_COLS;
     case '\r':
