@@ -147,7 +147,9 @@ debug-qemu: bin/ucore.img
 	$(TERMINAL) -e "gdb -q -x tools/gdbinit"
 
 bochs:
-	bochs -f bochsrc.bxrc
+	bochs -q -f bochsrc.bxrc
+	sleep 2
+	$(TERMINAL) -e "gdb -q -x tools/gdbinit"
 
 clean:
 	rm -f -r obj bin
