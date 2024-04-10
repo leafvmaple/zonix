@@ -9,6 +9,8 @@ HOSTCFLAGS	:= -g -Wall -O2
 LD      := ld
 LDFLAGS := -m elf_i386 -nostdlib
 
+DASM = ndisasm
+
 QEMU := qemu-system-i386
 
 OBJDUMP := objdump
@@ -97,6 +99,7 @@ $(call add_packet_files_cc,$(call listf_cc,kern),kernel)
 $(call add_packet_files_cc,$(call listf_cc,init),initial)
 
 kernel = $(call tobin,kernel)
+
 KOBJS = $(call read_packet,initial)
 KOBJS += $(call read_packet,kernel)
 
@@ -105,6 +108,7 @@ $(kernel): $(KOBJS) tools/kernel.ld
 	$(OBJDUMP) -S $@ > obj/kernel.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > obj/kernel.sym
 	$(OBJCOPY) -S -O binary $@ bin/kernel.bin
+	$(DASM) -b 32 bin/kernel.bin > obj/kernel.disasm
 
 bootfiles = $(call listf_cc,boot)
 $(eval $(call compiles,$(bootfiles),$(CC),$(CFLAGS) -Os -nostdinc))
@@ -115,8 +119,9 @@ BOBJS = $(call toobj,$(bootfiles))
 $(boot): $(BOBJS) | $(call tobin,sign)
 	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x0 $^ -o $(call toobj,bootblock)
 	$(OBJDUMP) -S obj/bootblock.o > obj/bootblock.asm
-	$(OBJCOPY) -S -O binary obj/bootblock.o obj/bootblock.out
-	bin/sign obj/bootblock.out $@
+	$(OBJCOPY) -S -O binary obj/bootblock.o bin/bootblock.bin
+	$(DASM) -b 16 bin/bootblock.bin > obj/bootblock.disasm
+#	bin/sign obj/bootblock.out $@
 
 $(call make_dir)
 
@@ -131,7 +136,7 @@ bin/sign: obj/sign/tools/sign.o | $$(dir $$@)
 
 bin/ucore.img: bin/bootblock bin/kernel | $$(dir $$@)
 	dd if=/dev/zero of=$@ count=10080
-	dd if=bin/bootblock of=$@ conv=notrunc
+	dd if=bin/bootblock.bin of=$@ conv=notrunc
 	dd if=bin/kernel.bin of=$@ seek=1 conv=notrunc
 
 TARGETS: bin/bootblock bin/kernel bin/sign bin/ucore.img
@@ -150,6 +155,11 @@ bochs:
 	bochs -q -f bochsrc.bxrc
 	sleep 2
 	$(TERMINAL) -e "gdb -q -x tools/gdbinit"
+
+gdb: linux.img
+	$(TERMINAL) -e "bochs -q -f bochsrc.bxrc"
+	sleep 2
+	gdb -q -x tools/gdbinit
 
 clean:
 	rm -f -r obj bin

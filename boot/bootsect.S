@@ -1,8 +1,9 @@
-# GAS
-#include <asm.h>
+#include "asm/seg.h"
 
 .set PROT_MODE_CSEG,        0x8                     # kernel code segment selector
 .set PROT_MODE_DSEG,        0x10                    # kernel data segment selector
+
+.set SYSSEG, 0x0
 
 .globl _start
 _start:
@@ -33,7 +34,7 @@ _start:
 
 	lgdt gdtdesc
     movl %cr0, %eax
-    orl $0x01, %eax
+    orl  $0x01, %eax
     movl %eax, %cr0
 
 	ljmp $PROT_MODE_CSEG, $protcseg                 # Set CS
@@ -50,7 +51,7 @@ dap:
     .byte 0x00
     .word 127
     .word 0x00
-    .word 0x1000
+    .word SYSSEG
     .quad 1
 
 .code32                                             # Assemble for 32-bit mode
@@ -66,7 +67,7 @@ protcseg:
     movl $0x00, %ebp
     movl $_start, %esp
     # call bootmain
-    call 0x10000
+    call SYSSEG
 
 	# If bootmain returns (it shouldn't), loop.
 spin:
@@ -83,3 +84,5 @@ gdtdesc:
     .word 0x17                                      # sizeof(gdt) - 1
     .long gdt                                       # address gdt
 
+.org 510
+    .word 0xAA55

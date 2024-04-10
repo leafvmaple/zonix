@@ -1,5 +1,5 @@
 
-#include "console.h"
+#include "driver/console.h"
 #include "x86.h"
 
 #define CGA_BASE        0x3D4

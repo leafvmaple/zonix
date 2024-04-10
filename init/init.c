@@ -1,6 +1,6 @@
 #include "stdio.h"
-#include "console.h"
-#include "pmm.h"
+#include "driver/console.h"
+#include "com/pmm.h"
 
 int kern_init(void) __attribute__((noreturn));
 
