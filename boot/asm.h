@@ -4,7 +4,7 @@
 /* Assembler macros to create x86 segments */
 
 /* Normal segment */
-#define SEG_NULLASM                                             \
+#define SEG_NULL_ASM                                             \
     .word 0, 0;                                                 \
     .byte 0, 0, 0, 0
 
