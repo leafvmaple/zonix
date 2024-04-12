@@ -3,6 +3,8 @@
 .set PROT_MODE_CSEG,        0x8                     # kernel code segment selector
 .set PROT_MODE_DSEG,        0x10                    # kernel data segment selector
 
+.globl _start, _idt
+
 .code32                                             # Assemble for 32-bit mode
 _main:
 	movw $PROT_MODE_DSEG, %ax                       # Our data segment selector
@@ -13,6 +15,7 @@ _main:
     movw %ax, %ss                                   # -> SS: Stack Segment
 
 	lgdt _gdtdesc
+    lidt _idtdesc
 
 	movw %ax, %ds                                   # -> DS: Data Segment
     movw %ax, %es                                   # -> ES: Extra Segment
