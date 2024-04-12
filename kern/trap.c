@@ -13,27 +13,37 @@ typedef struct gate_desc {
     unsigned gd_off_31_16 : 16;  // high bits of offset in segment, always 0
 } gate_desc[256];
 
-// gate_addr under 0x10000, so gd_off_31_16 always 0
-// #define SET_GATE(dpl, type) (0x8000 + (dpl << 13) + (type << 8))
-
 extern gate_desc _idt;
 
-// Too slow, but useful
-#define SET_GATE(gate, type, sel, dpl, addr)             \
-    {                                                    \
-        (gate).gd_off_15_0 = (uint32_t)(addr)&0xffff;    \
-        (gate).gd_ss = (sel);                            \
-        (gate).gd_args = 0;                              \
-        (gate).gd_rsv1 = 0;                              \
-        (gate).gd_type = type;                           \
-        (gate).gd_s = 0;                                 \
-        (gate).gd_dpl = (dpl);                           \
-        (gate).gd_p = 1;                                 \
-        (gate).gd_off_31_16 = (uint32_t)(addr) >> 16;    \
-    }
+#ifdef _FAST
+// gate_addr under 0x10000, so gd_off_31_16 always 0
+#define SET_GATE(gate_addr, type, dpl, addr) \
+__asm__ (               \
+    "movw %%dx , %%ax;" \
+	"movw %0   , %%dx;" \
+	"movl %%eax, %1;"   \
+	"movl %%edx, %2;"   \
+	: \
+	: "i" ((short) (0x8000 + (dpl << 13) + (type << 8))), "o" (*((char *) (gate_addr))), "o" (*(4+(char *) (gate_addr))), "d" ((char *) (addr)))
 
-#define set_trap_gate(n, addr)   SET_GATE(_idt[n], STS_TG32, 0, 0, addr)
-#define set_system_gate(n, addr) SET_GATE(_idt[n], STS_TG32, 0, STA_R|STA_W, addr)
+#else
+// Too slow, but useful
+#define SET_GATE(gate, type, sel, dpl, addr)              \
+    {                                                     \
+        (gate)->gd_off_15_0 = (uint32_t)(addr)&0xffff;    \
+        (gate)->gd_ss = (sel);                            \
+        (gate)->gd_args = 0;                              \
+        (gate)->gd_rsv1 = 0;                              \
+        (gate)->gd_type = type;                           \
+        (gate)->gd_s = 0;                                 \
+        (gate)->gd_dpl = (dpl);                           \
+        (gate)->gd_p = 1;                                 \
+        (gate)->gd_off_31_16 = (uint32_t)(addr) >> 16;    \
+    }
+#endif
+
+#define set_trap_gate(n, addr)   SET_GATE(&_idt[n], STS_TG32, 0, 0, addr)
+#define set_system_gate(n, addr) SET_GATE(&_idt[n], STS_TG32, 0, STA_R|STA_W, addr)
 
 void divide_error(long esp, long error_code)
 {

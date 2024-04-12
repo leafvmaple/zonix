@@ -15,7 +15,7 @@ _main:
     movw %ax, %ss                                   # -> SS: Stack Segment
 
 	lgdt _gdtdesc
-    lidt _idtdesc
+    call _load_idt
 
 	movw %ax, %ds                                   # -> DS: Data Segment
     movw %ax, %es                                   # -> ES: Extra Segment
@@ -28,6 +28,38 @@ _main:
 	# If kern_init returns (it shouldn't), loop.
 _spin:
     jmp _spin
+
+_load_idt:
+    lea  _default_int , %edx /* Get selector|adress */
+	movl $0x00080000  , %eax /* selector = 0x0008 = cs */
+	movw %dx          , %ax
+	movw GATE_DESC(STS_IG32, 0), %dx	/* interrupt gate - dpl=0, present */
+
+	lea _idt, %edi
+	mov $256, %ecx			# 256 Interupt gates
+_rep_idt:
+	movl %eax, (%edi)
+	movl %edx, 4(%edi)
+	addl $8  , %edi			# Sizeof Interupt gates is 8 bytes
+	dec  %ecx
+	jne  _rep_idt
+	lidt _idtdesc
+    ret
+
+_default_int:
+    pushl %eax
+	pushl %ecx
+	pushl %edx
+	push  %ds
+	push  %es
+	push  %fs
+	pop   %fs
+	pop   %es
+	pop   %ds
+	popl  %edx
+	popl  %ecx
+	popl  %eax
+	iret
 
 .align 8
 _gdt:
