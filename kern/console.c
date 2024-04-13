@@ -1,6 +1,6 @@
 
 #include "driver/console.h"
-#include "x86.h"
+#include "arch/x86/x86.h"
 
 #define CGA_BASE        0x3D4
 #define CGA_BUF         0xB8000

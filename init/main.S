@@ -1,4 +1,4 @@
-#include "asm/seg.h"
+#include "arch/x86/x86_asm.h"
 
 .set PROT_MODE_CSEG,        0x8                     # kernel code segment selector
 .set PROT_MODE_DSEG,        0x10                    # kernel data segment selector
@@ -30,9 +30,9 @@ _spin:
     jmp _spin
 
 _load_idt:
-    lea  _default_int , %edx /* Get selector|adress */
-	movl $0x00080000  , %eax /* selector = 0x0008 = cs */
-	movw %dx          , %ax
+    lea  _default_int   , %edx /* Get selector|adress */
+	movl KERNEL_CS << 16, %eax /* selector = KERNEL_CS */
+	movw %dx            , %ax
 	movw GATE_DESC(STS_IG32, 0), %dx	/* interrupt gate - dpl=0, present */
 
 	lea _idt, %edi

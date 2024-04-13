@@ -1,4 +1,4 @@
-#include "asm/seg.h"
+#include "arch/x86/x86_asm.h"
 
 .set PROT_MODE_CSEG,        0x8                     # kernel code segment selector
 .set PROT_MODE_DSEG,        0x10                    # kernel data segment selector

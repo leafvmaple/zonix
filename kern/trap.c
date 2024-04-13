@@ -1,5 +1,5 @@
-#include "def.h"
 #include "com/trap.h"
+#include "arch/x86/x86_def.h"
 
 typedef struct gate_desc {
     unsigned gd_off_15_0 : 16;   // low 16 bits of offset in segment
