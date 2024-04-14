@@ -50,22 +50,19 @@ check_8042:
 _dap:
     .byte 0x10
     .byte 0x00
-    .word 127
+    .word 32
     .word 0x00
-    .word SYSSEG
+    .word 0x00
     .quad 1
-
-    # call bootmain
-    call SYSSEG
 
 .p2align 2
 gdt16:
-    SEG_NULL_ASM                                     # null seg
+    SEG_NULL_ASM                                    # null seg
     SEG_ASM(STA_X|STA_R, 0x0, 0x7fffff)             # code seg for bootloader and kernel
     SEG_ASM(STA_W, 0x0, 0x7fffff)                   # data seg for bootloader and kernel
 
 gdtd16:
-    .word 3 * 8 - 1                                 # sizeof(gdt) - 1
+    .word 0x800                                     # sizeof(gdt) - 1
     .long gdt16                                     # address gdt
 
 .org 510

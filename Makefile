@@ -45,7 +45,10 @@ packetname = $(if $(1),$(addprefix $(OBJPREFIX),$(1)),$(OBJPREFIX))
 toobj = $(addprefix $(OBJDIR)$(SLASH)$(if $(2),$(2)$(SLASH)),$(addsuffix .o,$(basename $(1))))
 
 # file1 file2 -> bin/file1 bin/file2
-tobin = $(addprefix $(BINDIR)$(SLASH),$(1))
+totarget = $(addprefix $(BINDIR)$(SLASH),$(1))
+
+# file1 file2 -> bin/file1.bin bin/file2.bin
+tobin = $(addprefix $(BINDIR)$(SLASH),$(addsuffix .bin,$(1)))
 
 # #files, cc, cflags
 # obj/src/file1.o | src/file1.c | obj/src/
@@ -89,74 +92,66 @@ add_packet_files_cc = $(call add_packet_files,$(1),$(CC),$(CFLAGS),$(2))
 #	mkdir -p obj/src/
 define do_make_dir
 $$(sort $$(dir $$(ALLOBJS)) $(BINDIR)$(SLASH) $(OBJDIR)$(SLASH)):
-	@$(MKDIR) $$@
+	$(MKDIR) $$@
 endef
 make_dir = $(eval $(call do_make_dir))
 
 #####################################################################################
 
-$(call add_packet_files_cc,$(call listf_cc,kern),kernel)
-$(call add_packet_files_cc,$(call listf_cc,init),initial)
+KSRCDIR :=	kern        \
+			kern/trap   \
+			kern/driver
 
-kernel = $(call tobin,kernel)
+$(call add_packet_files_cc,$(call listf_cc,init),initial)
+$(call add_packet_files_cc,$(call listf_cc,$(KSRCDIR)),kernel)
+
+kernel = $(call totarget,kernel)
 
 KOBJS = $(call read_packet,initial)
 KOBJS += $(call read_packet,kernel)
 
-$(kernel): $(KOBJS) tools/kernel.ld
+$(kernel): $(KOBJS) tools/kernel.ld | $$(dir $$@)
 	$(LD) $(LDFLAGS) -T tools/kernel.ld $(KOBJS) -o $@
 	$(OBJDUMP) -S $@ > obj/kernel.asm
-	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > obj/kernel.sym
-	$(OBJCOPY) -S -O binary $@ bin/kernel.bin
-	$(DASM) -b 32 bin/kernel.bin > obj/kernel.disasm
+#	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > obj/kernel.sym
+	$(OBJCOPY) -S -O binary $@ $(call tobin,kernel)
+	$(DASM) -b 32 $(call tobin,kernel) > obj/kernel.disasm
 
 bootfiles = $(call listf_cc,boot)
 $(eval $(call compiles,$(bootfiles),$(CC),$(CFLAGS) -Os -nostdinc))
 
-boot = $(call tobin,bootblock)
+boot = $(call totarget,bootblock)
 BOBJS = $(call toobj,$(bootfiles))
 
-$(boot): $(BOBJS) | $(call tobin,sign)
-	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x0 $^ -o $(call toobj,bootblock)
-	$(OBJDUMP) -S obj/bootblock.o > obj/bootblock.asm
-	$(OBJCOPY) -S -O binary obj/bootblock.o bin/bootblock.bin
-	$(DASM) -b 16 bin/bootblock.bin > obj/bootblock.disasm
-#	bin/sign obj/bootblock.out $@
+$(boot): $(BOBJS) | $$(dir $$@)
+	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x7c00 -o $@ $^
+	$(OBJDUMP) -S $@ > obj/bootblock.asm
+	$(OBJCOPY) -S -O binary $@ $(call tobin,bootblock)
+	$(DASM) -b 16 $(call tobin,bootblock) > obj/bootblock.disasm
 
 $(call make_dir)
 
-obj/sign/tools/:
-	@mkdir -p $@
-
-obj/sign/tools/sign.o: tools/sign.c | $$(dir $$@)
-	$(HOSTCC) -Itools/ $(HOSTCFLAGS) -c $^ -o $@
-
-bin/sign: obj/sign/tools/sign.o | $$(dir $$@)
-	$(HOSTCC) $(HOSTCFLAGS) $^ -o $@
-
-bin/ucore.img: bin/bootblock bin/kernel | $$(dir $$@)
-	dd if=/dev/zero of=$@ count=10080
+bin/zonix.img: bin/bootblock bin/kernel | $$(dir $$@)
+	dd if=/dev/zero of=$@ count=8064
 	dd if=bin/bootblock.bin of=$@ conv=notrunc
 	dd if=bin/kernel.bin of=$@ seek=1 conv=notrunc
 
-TARGETS: bin/bootblock bin/kernel bin/sign bin/ucore.img
+TARGETS: bin/bootblock bin/kernel bin/zonix.img
 
 .DEFAULT_GOAL := TARGETS
 
-qemu: bin/ucore.img
+qemu: bin/zonix.img
 	$(QEMU) -S -no-reboot -monitor stdio -hda $<
 
-debug-qemu: bin/ucore.img
+debug-qemu: bin/zonix.img
 	$(QEMU) -S -s -parallel stdio -hda $< -serial null &
 	sleep 2
 	$(TERMINAL) -e "gdb -q -x tools/gdbinit"
 
 bochs:
 	bochs -q -f bochsrc.bxrc
-	sleep 2
-	$(TERMINAL) -e "gdb -q -x tools/gdbinit"
 
-gdb: linux.img
+gdb: bin/zonix.img
 	$(TERMINAL) -e "bochs -q -f bochsrc.bxrc"
 	sleep 2
 	gdb -q -x tools/gdbinit

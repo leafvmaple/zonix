@@ -27,3 +27,15 @@ static inline void insl(uint32_t port, void *addr, int cnt) {
 static inline void outb(uint16_t port, uint8_t data) {
     asm volatile ("outb %0, %1" :: "a" (data), "d" (port));
 }
+
+static inline void lidt(struct gate_desc_table* pd) {
+    asm volatile("lidt (%0)" ::"r"(pd) : "memory");
+}
+
+static inline void sti(void) {
+    asm volatile("sti");
+}
+
+static inline void cli(void) {
+    asm volatile("cli" ::: "memory");
+}

@@ -1,5 +1,3 @@
-#include "def.h"
-
 /* Control Register flags */
 #define CR0_PE 0x00000001  // Protection Enable
 #define CR0_MP 0x00000002  // Monitor coProcessor
