@@ -17,7 +17,7 @@ extern gate_desc __idt[256];
 extern uintptr_t __vectors[];
 
 gate_desc_table idt_pd = {
-    256 - 1,
+    256 * 8 - 1,
     (uintptr_t)__idt
 };
 
@@ -47,8 +47,8 @@ __asm__ (               \
     }
 #endif
 
-#define SET_TRAP_GATE(n, addr) SET_GATE(&__idt[n], STS_TG32, DPL_KERNEL, 0          , addr)
-#define SET_SYS_GATE(n, addr)  SET_GATE(&__idt[n], STS_TG32, DPL_KERNEL, STA_R|STA_W, addr)
+#define SET_TRAP_GATE(n, addr) SET_GATE(&__idt[n], STS_TG32, GD_KTEXT, DPL_KERNEL, addr)
+#define SET_SYS_GATE(n, addr)  SET_GATE(&__idt[n], STS_TG32, GD_KTEXT, DPL_USER  , addr)
 
 void trap_init() {
     for (int i = 0; i < 256; i++)

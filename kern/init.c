@@ -11,7 +11,7 @@ int kern_init(void) {
     pmm_init(4 * 1024 * 1024, 16 * 1024 * 1024);
     trap_init();
 
-    // intr_enable();
+    intr_enable();
 
     while (1);
 }
