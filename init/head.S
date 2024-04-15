@@ -3,7 +3,7 @@
 .set PROT_MODE_CSEG, 0x8                            # kernel code segment selector
 .set PROT_MODE_DSEG, 0x10                           # kernel data segment selector
 
-.globl __idt
+.globl __idt, __idtdesc
 
 .code32                                             # Assemble for 32-bit mode
 _main:
@@ -52,6 +52,6 @@ _gdtdesc:
 	.word 256 * 8 - 1						# sizeof(gdt) - 1
 	.long _gdt
 
-_idtdesc:
+__idtdesc:
 	.word 256 * 8 - 1						# sizeof(_idt) - 1, idt contains 256 entries
 	.long __idt

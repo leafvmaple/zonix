@@ -14,12 +14,8 @@ typedef struct gate_desc {
 } gate_desc;
 
 extern gate_desc __idt[256];
+extern gate_desc_table __idtdesc;
 extern uintptr_t __vectors[];
-
-gate_desc_table idt_pd = {
-    256 * 8 - 1,
-    (uintptr_t)__idt
-};
 
 #ifdef _ASM_
 // gate_addr under 0x10000, so gd_off_31_16 always 0
@@ -52,9 +48,9 @@ __asm__ (               \
 
 void trap_init() {
     for (int i = 0; i < 256; i++)
-        SET_TRAP_GATE(i, &__vectors[i]);
+        SET_TRAP_GATE(i, __vectors[i]);
 
-    lidt(&idt_pd);
+    lidt(&__idtdesc);
 }
 
 void trap(struct trapframe *tf) {
