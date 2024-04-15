@@ -41,6 +41,7 @@ void cga_putc(int c) {
 
 void cons_init() {
     cga_init();
+    cprintf("Zonix OS is Loading...\n");
 }
 
 void cons_putc(int c) {
