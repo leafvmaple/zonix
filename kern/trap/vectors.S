@@ -43,6 +43,7 @@ vector7:
   jmp _trap_entry
 .globl vector8
 vector8:
+  pushl $0
   pushl $8
   jmp _trap_entry
 .globl vector9

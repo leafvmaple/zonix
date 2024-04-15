@@ -15,7 +15,9 @@ struct trap_regs {
 struct trap_frame {
     struct trap_regs tf_regs;
 
+    uint32_t tf_trapno;
     uint32_t tf_err;
+    uintptr_t tf_eip;
 };
 
 void trap_init(void);
