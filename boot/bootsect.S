@@ -8,9 +8,6 @@
 .globl _start
 _start:
 .code16                                             # Assemble for 16-bit mode
-    cli                                             # Disable interrupts
-    cld                                             # String operations increment
-
     # Set up the important data segment registers (DS, ES, SS).
     xorw %ax, %ax                                   # Segment number zero
     movw %ax, %ds                                   # -> Data Segment
@@ -32,10 +29,12 @@ _start:
 	movb $0xDF, %al                                 # 0xdf -> port 0x60
     outb %al  , $0x60                               # 0xdf = 11011111, means set P2's A20 bit(the 1 bit) to 1
 
+# Load 16bit GDT
 	lgdt gdtd16
 
+# Enable PE
     movl %cr0   , %eax
-    orl  $CR0_PE, %eax                              # Enable PE
+    orl  $CR0_PE, %eax                              
     movl %eax   , %cr0
 
 	ljmp $PROT_MODE_CSEG, $SYSSEG                   # Set CS

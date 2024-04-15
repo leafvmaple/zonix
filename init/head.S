@@ -3,7 +3,7 @@
 .set PROT_MODE_CSEG, 0x8                            # kernel code segment selector
 .set PROT_MODE_DSEG, 0x10                           # kernel data segment selector
 
-.globl __idt, __idtdesc
+.globl __idt
 
 .code32                                             # Assemble for 32-bit mode
 _main:
@@ -14,10 +14,11 @@ _main:
     movw %ax, %gs                                   # -> GS
     movw %ax, %ss                                   # -> SS: Stack Segment
 
-#    lgdt _gdtdesc
-#    lidt _idtdesc
-	call _load_gdt
-#    call _load_idt
+	cli                                             # Disable interrupts
+    cld                                             # String operations increment
+
+    lgdt _gdtdesc
+    lidt _idtdesc
 
 	movw %ax, %ds                                   # -> DS: Data Segment
     movw %ax, %es                                   # -> ES: Extra Segment
@@ -45,13 +46,13 @@ _gdt:
 	.fill 252, 8, 0							# space for LDT's and TSS's etc
 
 __idt:
-	.fill 256, 8, 0							# idt is uninitialized
+	.fill 256, 8, 0							# idt is uninitialized, initial by trap_init
 
 .align 2
 _gdtdesc:
 	.word 256 * 8 - 1						# sizeof(gdt) - 1
 	.long _gdt
 
-__idtdesc:
+_idtdesc:
 	.word 256 * 8 - 1						# sizeof(_idt) - 1, idt contains 256 entries
 	.long __idt
