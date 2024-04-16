@@ -33,27 +33,37 @@ _start:
 	lgdt gdtd16
 
 # PIC Init
-# Write 0x11 to port 0x20 (command port for the master PIC) and 0xA0 (command port for the slave PIC)
-# This command word sets cascade mode and requires ICW4 to be sent
+# ICW1: g0hhi
+//    g:  0 = edge triggering, 1 = level triggering
+//    h:  0 = cascaded PICs, 1 = master only
+//    i:  0 = no ICW4, 1 = ICW4 required
     mov $0x11, %al
-    out %al, $0x20
-    out %al, $0xA0
+    out %al, $IO_PIC1
+    out %al, $IO_PIC2
 
-    mov $0x20, %al      # Master PIC Interupt [RQ0, RQ8) is [0x20, 0x28)
-    out %al, $0x21
+# ICW2
+    mov $0x20, %al              # Master PIC Interupt [RQ0, RQ8) is [0x20, 0x28)
+    out %al, $IO_PIC1 + 1
 
-    mov $0x28, %al      # Master PIC Interupt [RQ8, RQ16) is [0x28, 0x30)
-    out %al, $0xA1
+    mov $0x28, %al              # Master PIC Interupt [RQ8, RQ16) is [0x28, 0x30)
+    out %al, $IO_PIC2 + 1
 
-    mov $0x04, %al
-    out %al, $0x21
+# ICW3
+    mov $BIT_SLAVE, %al         # Slave PIC connect in IRQ_SLAVE
+    out %al, $IO_PIC1 + 1
 
-    mov $0x02, %al
-    out %al, $0xA1
+    mov $IRQ_SLAVE, %al         # connect to Master PIC's IRQ2(IRQ_SLAVE)
+    out %al, $IO_PIC2 + 1
 
-    mov $0x01, %al      # 0x01 means setting the PIC to 80x86 mode
-    out %al, $0x21
-    out %al, $0xA1
+# ICW4:  000nbmap
+//    n:  1 = special fully nested mode
+//    b:  1 = buffered mode
+//    m:  0 = slave PIC, 1 = master PIC (ignored when b is 0).
+//    a:  1 = Automatic EOI mode
+//    p:  0 = MCS-80/85 mode, 1 = intel x86 mode
+    mov $0x01, %al              # setting the PIC to 80x86 mode
+    out %al, $IO_PIC1 + 1
+    out %al, $IO_PIC2 + 1
 
 #    mov $0xFF, %al
 #    out %al, $0x21

@@ -61,3 +61,9 @@
 #define KERNEL_DS ((GD_KDATA) | DPL_KERNEL)
 #define USER_CS   ((GD_UTEXT) | DPL_USER)
 #define USER_DS   ((GD_UDATA) | DPL_USER)
+
+#define IO_PIC1 0x20  // Master (IRQs 0-7)
+#define IO_PIC2 0xA0  // Slave  (IRQs 8-15)
+
+#define IRQ_SLAVE 2
+#define BIT_SLAVE (1 << IRQ_SLAVE)
