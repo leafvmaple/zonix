@@ -1,4 +1,5 @@
 #include "com/trap.h"
+#include "unistd.h"
 #include "arch/x86/x86.h"
 
 typedef struct gate_desc {
@@ -48,8 +49,14 @@ __asm__ (               \
 void trap_init() {
     for (int i = 0; i < 256; i++)
         SET_TRAP_GATE(i, __vectors[i]);
+    SET_SYS_GATE(T_SYSCALL, __vectors[T_SYSCALL]);
 }
 
 void trap(struct trap_frame *tf) {
-
+    switch(tf->tf_trapno) {
+        case T_SYSCALL:
+            break;
+        default:
+            break;
+    }
 }
