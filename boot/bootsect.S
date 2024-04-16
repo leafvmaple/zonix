@@ -32,6 +32,33 @@ _start:
 # Load 16bit GDT
 	lgdt gdtd16
 
+# PIC Init
+# Write 0x11 to port 0x20 (command port for the master PIC) and 0xA0 (command port for the slave PIC)
+# This command word sets cascade mode and requires ICW4 to be sent
+    mov $0x11, %al
+    out %al, $0x20
+    out %al, $0xA0
+
+    mov $0x20, %al      # Master PIC Interupt [RQ0, RQ8) is [0x20, 0x28)
+    out %al, $0x21
+
+    mov $0x28, %al      # Master PIC Interupt [RQ8, RQ16) is [0x28, 0x30)
+    out %al, $0xA1
+
+    mov $0x04, %al
+    out %al, $0x21
+
+    mov $0x02, %al
+    out %al, $0xA1
+
+    mov $0x01, %al      # 0x01 means setting the PIC to 80x86 mode
+    out %al, $0x21
+    out %al, $0xA1
+
+#    mov $0xFF, %al
+#    out %al, $0x21
+#    out %al, $0xA1
+
 # Enable PE
     movl %cr0   , %eax
     orl  $CR0_PE, %eax                              
