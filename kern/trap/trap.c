@@ -14,7 +14,7 @@ typedef struct gate_desc {
     unsigned gd_off_31_16 : 16;  // high bits of offset in segment, always 0
 } gate_desc;
 
-extern gate_desc __idt[256];
+extern gate_desc __idt[];
 extern uintptr_t __vectors[];
 
 #ifdef _ASM_

@@ -112,7 +112,7 @@ KOBJS += $(call read_packet,kernel)
 
 $(kernel): $(KOBJS) tools/kernel.ld | $$(dir $$@)
 	$(LD) $(LDFLAGS) -T tools/kernel.ld $(KOBJS) -o $@
-	$(OBJDUMP) -S $@ > obj/kernel.asm
+	$(OBJDUMP) -D $@ > obj/kernel.asm
 #	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > obj/kernel.sym
 	$(OBJCOPY) -S -O binary $@ $(call tobin,kernel)
 	$(DASM) -b 32 $(call tobin,kernel) > obj/kernel.disasm

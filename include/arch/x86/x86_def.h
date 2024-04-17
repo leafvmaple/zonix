@@ -66,4 +66,7 @@
 #define IO_PIC2 0xA0  // Slave  (IRQs 8-15)
 
 #define IRQ_SLAVE 2
+#define IRQ_TIMER 0
+#define IRQ_KBD   1
+
 #define BIT_SLAVE (1 << IRQ_SLAVE)
