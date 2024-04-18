@@ -33,7 +33,8 @@ _start:
 	lgdt gdtd16
 
 # PIC Init
-# ICW1: g0hhi
+# ICW1: Init PIC, Set Enable ICW4
+// g0hhi
 //    g:  0 = edge triggering, 1 = level triggering
 //    h:  0 = cascaded PICs, 1 = master only
 //    i:  0 = no ICW4, 1 = ICW4 required
@@ -41,29 +42,42 @@ _start:
     out %al, $IO_PIC1
     out %al, $IO_PIC2
 
-# ICW2
-    mov $0x20, %al              # Master PIC Interupt [RQ0, RQ8) is [0x20, 0x28)
+# ICW2: Set Interupt Address
+    mov $IRQ_OFFSET, %al        # Master PIC Interupt [RQ0, RQ8) is [0x20, 0x28)
     out %al, $IO_PIC1 + 1
 
-    mov $0x28, %al              # Master PIC Interupt [RQ8, RQ16) is [0x28, 0x30)
+    mov $IRQ_OFFSET + 8, %al    # Master PIC Interupt [RQ8, RQ16) is [0x28, 0x30)
     out %al, $IO_PIC2 + 1
 
-# ICW3
+# ICW3:
     mov $BIT_SLAVE, %al         # Slave PIC connect in IRQ_SLAVE
     out %al, $IO_PIC1 + 1
 
     mov $IRQ_SLAVE, %al         # connect to Master PIC's IRQ2(IRQ_SLAVE)
     out %al, $IO_PIC2 + 1
 
-# ICW4:  000nbmap
+# ICW4: Set Work Mode
+// 000nbmap
 //    n:  1 = special fully nested mode
 //    b:  1 = buffered mode
 //    m:  0 = slave PIC, 1 = master PIC (ignored when b is 0).
 //    a:  1 = Automatic EOI mode
 //    p:  0 = MCS-80/85 mode, 1 = intel x86 mode
-    mov $0x01, %al              # setting the PIC to 80x86 mode
+    mov $0x03, %al              # setting the PIC to 80x86 mode
     out %al, $IO_PIC1 + 1
     out %al, $IO_PIC2 + 1
+
+# OCW2:  0ef01prs
+//   ef:  0x = NOP, 10 = clear specific mask, 11 = set specific mask
+//    p:  0 = no polling, 1 = polling mode
+//   rs:  0x = NOP, 10 = read IRR, 11 = read ISR
+    mov 0x68, %al
+    out %al, $IO_PIC1
+    out %al, $IO_PIC2
+
+    mov 0x0A, %al
+    out %al, $IO_PIC1
+    out %al, $IO_PIC2
 
 #    mov $0xFF, %al
 #    out %al, $0x21

@@ -54,6 +54,10 @@ void trap_init() {
 
 void trap(struct trap_frame *tf) {
     switch(tf->tf_trapno) {
+        case IRQ_OFFSET + IRQ_TIMER:
+            break;
+        case IRQ_OFFSET + IRQ_KBD:
+            break;
         case T_SYSCALL:
             break;
         default:

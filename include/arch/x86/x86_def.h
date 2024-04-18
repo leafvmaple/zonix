@@ -69,4 +69,6 @@
 #define IRQ_TIMER 0
 #define IRQ_KBD   1
 
+#define IRQ_OFFSET 0x20
+
 #define BIT_SLAVE (1 << IRQ_SLAVE)
