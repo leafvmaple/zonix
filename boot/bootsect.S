@@ -67,7 +67,7 @@ _start:
     out %al, $IO_PIC1 + 1
     out %al, $IO_PIC2 + 1
 
-# OCW2:  0ef01prs
+# OCW3:  0ef01prs
 //   ef:  0x = NOP, 10 = clear specific mask, 11 = set specific mask
 //    p:  0 = no polling, 1 = polling mode
 //   rs:  0x = NOP, 10 = read IRR, 11 = read ISR
@@ -78,10 +78,6 @@ _start:
     mov 0x0A, %al
     out %al, $IO_PIC1
     out %al, $IO_PIC2
-
-#    mov $0xFF, %al
-#    out %al, $0x21
-#    out %al, $0xA1
 
 # Enable PE
     movl %cr0   , %eax
