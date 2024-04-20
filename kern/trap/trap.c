@@ -57,6 +57,8 @@ void trap(struct trap_frame *tf) {
         case IRQ_OFFSET + IRQ_TIMER:
             break;
         case IRQ_OFFSET + IRQ_KBD:
+            char c = cons_getc();
+            cons_putc(c);
             break;
         case T_SYSCALL:
             break;

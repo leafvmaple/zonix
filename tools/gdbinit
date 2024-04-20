@@ -1,6 +1,4 @@
 file bin/kernel
 target remote :1234
 b kern_init
-b tty_init
-b trap.c:60
 c

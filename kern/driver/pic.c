@@ -15,7 +15,6 @@ void pic_enable(unsigned int irq) {
 }
 
 void pic_init() {
-	pic_enable(IRQ_TIMER);
-	pic_enable(IRQ_KBD);
-	pic_enable(IRQ_SLAVE);
+    pic_enable(IRQ_SLAVE);
+	// pic_enable(IRQ_TIMER);
 }
