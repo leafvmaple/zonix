@@ -14,7 +14,6 @@ void pic_enable(unsigned int irq) {
     pic_setmask(irq_mask & ~(1 << irq));
 }
 
-void pic_init() {
+void pic_init(void) {
     pic_enable(IRQ_SLAVE);
-	// pic_enable(IRQ_TIMER);
 }

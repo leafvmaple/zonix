@@ -16,3 +16,6 @@
 #define KEY_PGDN 0xE7
 #define KEY_INS 0xE8
 #define KEY_DEL 0xE9
+
+#define KP_ENTER '\n'
+#define KP_DIV   '/'

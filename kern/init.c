@@ -1,5 +1,8 @@
 #include "stdio.h"
 #include "driver/console.h"
+#include "driver/pic.h"
+#include "driver/time.h"
+#include "driver/intr.h"
 #include "com/pmm.h"
 #include "com/trap.h"
 #include "unistd.h"
@@ -14,6 +17,7 @@ int kern_init(void) {
     pic_init();
     trap_init();
     tty_init();
+    time_init();
 
     intr_enable();
 
