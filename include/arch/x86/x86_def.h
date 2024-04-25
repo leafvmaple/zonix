@@ -65,9 +65,11 @@
 #define IO_PIC1 0x20  // Master (IRQs 0-7)
 #define IO_PIC2 0xA0  // Slave  (IRQs 8-15)
 
-#define IRQ_SLAVE 2
 #define IRQ_TIMER 0
 #define IRQ_KBD   1
+#define IRQ_SLAVE 2
+#define IRQ_IDE1  14
+#define IRQ_IDE2  14
 
 #define IRQ_OFFSET 0x20
 
