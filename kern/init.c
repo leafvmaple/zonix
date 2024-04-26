@@ -4,8 +4,8 @@
 #include "driver/time.h"
 #include "driver/hd.h"
 #include "driver/intr.h"
-#include "com/pmm.h"
-#include "com/trap.h"
+#include "mm/pmm.h"
+#include "trap/trap.h"
 #include "sched/sched.h"
 #include "unistd.h"
 

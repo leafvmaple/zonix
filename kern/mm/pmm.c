@@ -1,4 +1,4 @@
-#include "com/pmm.h"
+#include "pmm.h"
 
 #define USED 100
 

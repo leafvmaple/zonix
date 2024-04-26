@@ -1,4 +1,4 @@
-#include "com/trap.h"
+#include "trap.h"
 #include "unistd.h"
 #include "arch/x86/x86.h"
 #include "arch/x86/x86_struct.h"
