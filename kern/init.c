@@ -2,6 +2,7 @@
 #include "driver/console.h"
 #include "driver/pic.h"
 #include "driver/time.h"
+#include "driver/hd.h"
 #include "driver/intr.h"
 #include "com/pmm.h"
 #include "com/trap.h"
@@ -20,6 +21,7 @@ int kern_init(void) {
     tty_init();
     time_init();
     sched_init();
+    hd_init();
 
     intr_enable();
 

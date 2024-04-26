@@ -20,6 +20,8 @@ void trap(struct trap_frame *tf) {
             char c = cons_getc();
             cons_putc(c);
             break;
+        case IRQ_OFFSET + IRQ_IDE1:
+            break;
         case T_SYSCALL:
             break;
         default:
