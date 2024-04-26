@@ -7,7 +7,7 @@
 #define GATE_DESC(type, dpl) (0x8000 + (dpl << 13) + (type << 8))
 
 /* Normal segment */
-#define SEG_NULL_ASM                                             \
+#define SEG_NULL_ASM                                            \
     .word 0, 0;                                                 \
     .byte 0, 0, 0, 0
 

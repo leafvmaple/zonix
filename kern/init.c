@@ -5,6 +5,7 @@
 #include "driver/intr.h"
 #include "com/pmm.h"
 #include "com/trap.h"
+#include "sched/sched.h"
 #include "unistd.h"
 
 static inline _syscall0(int, pause)
@@ -18,6 +19,7 @@ int kern_init(void) {
     trap_init();
     tty_init();
     time_init();
+    sched_init();
 
     intr_enable();
 

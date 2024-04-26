@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "*.fx5": "hlsl",
+        "*.s": "gas",
+        "*.asm": "masm",
+        "x86_def.h": "c",
+        "tty.h": "c",
+        "x86.h": "c",
+        "x86_struct.h": "c"
+    }
+}
