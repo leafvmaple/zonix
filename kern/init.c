@@ -18,7 +18,6 @@ int kern_init(void) {
     pmm_init(4 * 1024 * 1024, 16 * 1024 * 1024);
     pic_init();
     trap_init();
-    tty_init();
     time_init();
     sched_init();
     hd_init();
