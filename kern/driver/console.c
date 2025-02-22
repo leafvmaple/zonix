@@ -69,10 +69,10 @@ static void kbd_init(void) {
 }
 
 static int kdb_getc(void) {
-    if ((inb(KBSTATP) & 0x01) == 0)
+    if ((inb(I8042_STATUS_REG) & I8042_OBUF_FULL) == 0)
         return -1;
 
-    uint8_t data = inb(KBDATAP);
+    uint8_t data = inb(I8042_DATA_REG);
     return normal_map[data];
 }
 

@@ -1,4 +1,6 @@
 #include "arch/x86/x86_asm.h"
+#include "driver/kbd.h"
+#include "driver/pic.h"
 
 .set PROT_MODE_CSEG,        0x8                     # kernel code segment selector
 .set PROT_MODE_DSEG,        0x10                    # kernel data segment selector
@@ -14,20 +16,20 @@ _start:
     movw %ax, %es                                   # -> Extra Segment
     movw %ax, %ss                                   # -> Stack Segment
 
-# read track
+# read track from disk sector [1, 33)
     mov  $_dap, %si
-    movb $0x42, %ah                                 # AH=0x42, LAB模式读取磁盘
-    movb $0x80, %dl                                 # DL=0, Driver 0
+    movb $0x42, %ah                                 # AH=0x42, LAB Mode
+    movb $0x80, %dl                                 # DL=0x80, Hard Disk Driver 0
     int  $0x13
 	
 # Enable A20
 	call check_8042
-	movb $0xD1, %al                                 # 0xd1 -> port 0x64
-    outb %al  , $0x64                               # 0xd1 means: write data to 8042's P2 port
+	movb $0xD1, %al                                 # 0xd1: 11010001 -> port 0x64
+    outb %al  , $I8042_STATUS_REG                   # 0xd1 means: write data to 8042's P2 port
 
 	call check_8042
 	movb $0xDF, %al                                 # 0xdf -> port 0x60
-    outb %al  , $0x60                               # 0xdf = 11011111, means set P2's A20 bit(the 1 bit) to 1
+    outb %al  , $I8042_DATA_REG                     # 0xdf = 11011111, means set P2's A20 bit(the 1 bit) to 1
 
 # Load 16bit GDT
 	lgdt gdtd16
@@ -39,22 +41,22 @@ _start:
 //    h:  0 = cascaded PICs, 1 = master only
 //    i:  0 = no ICW4, 1 = ICW4 required
     mov $0x11, %al
-    out %al, $IO_PIC1
-    out %al, $IO_PIC2
+    out %al, $I8259_MASTER_CMD
+    out %al, $I8259_SLAVE_CMD
 
-# ICW2: Set Interupt Address
-    mov $IRQ_OFFSET, %al        # Master PIC Interupt [RQ0, RQ8) is [0x20, 0x28)
-    out %al, $IO_PIC1 + 1
+# ICW2: Set Interrupt Address
+    mov $IRQ_OFFSET, %al        # Master PIC Interrupt [RQ0, RQ8) is [0x20, 0x28)
+    out %al, $I8259_MASTER_IMR
 
-    mov $IRQ_OFFSET + 8, %al    # Master PIC Interupt [RQ8, RQ16) is [0x28, 0x30)
-    out %al, $IO_PIC2 + 1
+    mov $IRQ_OFFSET + 8, %al    # Master PIC Interrupt [RQ8, RQ16) is [0x28, 0x30)
+    out %al, $I8259_SLAVE_IMR
 
 # ICW3:
     mov $BIT_SLAVE, %al         # Slave PIC connect in IRQ_SLAVE
-    out %al, $IO_PIC1 + 1
+    out %al, $I8259_MASTER_IMR
 
     mov $IRQ_SLAVE, %al         # connect to Master PIC's IRQ2(IRQ_SLAVE)
-    out %al, $IO_PIC2 + 1
+    out %al, $I8259_SLAVE_IMR
 
 # ICW4: Set Work Mode
 // 000nbmap
@@ -64,8 +66,8 @@ _start:
 //    a:  1 = Automatic EOI mode
 //    p:  0 = MCS-80/85 mode, 1 = intel x86 mode
     mov $0x03, %al              # setting the PIC to 80x86 mode
-    out %al, $IO_PIC1 + 1
-    out %al, $IO_PIC2 + 1
+    out %al, $I8259_MASTER_IMR
+    out %al, $I8259_SLAVE_IMR
 
 # OCW3:  0ef01prs
 //   ef:  0x = NOP, 10 = clear specific mask, 11 = set specific mask
@@ -87,8 +89,8 @@ _start:
 	ljmp $PROT_MODE_CSEG, $SYSSEG                   # Set CS
 
 check_8042:
-    inb   $0x64, %al                                # Wait for not busy(8042 input buffer empty).
-    testb $0x02, %al
+    inb   $I8042_STATUS_REG, %al                    # Wait for not busy(8042 input buffer empty).
+    testb $I8042_IBUF_FULL, %al
     jnz   check_8042
 	ret
 
