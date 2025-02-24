@@ -54,7 +54,7 @@ void cga_putc(int c) {
         crt_pos -= (crt_pos % CRT_COLS);
         break;
     default:
-        crt_buf[crt_pos ++] = c;     // write the character
+        crt_buf[crt_pos++] = c;     // write the character
         break;
     }
 
@@ -69,10 +69,10 @@ static void kbd_init(void) {
 }
 
 static int kdb_getc(void) {
-    if ((inb(I8042_STATUS_REG) & I8042_OBUF_FULL) == 0)
+    if ((inb(KBD_STATUS_REG) & KBD_OBF_FULL) == 0)
         return -1;
 
-    uint8_t data = inb(I8042_DATA_REG);
+    uint8_t data = inb(KBD_DATA_REG);
     return normal_map[data];
 }
 

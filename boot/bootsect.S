@@ -24,62 +24,49 @@ _start:
 	
 # Enable A20
 	call check_8042
-	movb $0xD1, %al                                 # 0xd1: 11010001 -> port 0x64
-    outb %al  , $I8042_STATUS_REG                   # 0xd1 means: write data to 8042's P2 port
+	movb $KBD_CMD_WO_PORT, %al
+    outb %al, $KBD_STATUS_REG                     # write data to 8042's P2 port
 
 	call check_8042
-	movb $0xDF, %al                                 # 0xdf -> port 0x60
-    outb %al  , $I8042_DATA_REG                     # 0xdf = 11011111, means set P2's A20 bit(the 1 bit) to 1
+	movb $KBD_A20_ENABLE, %al
+    outb %al  , $KBD_DATA_REG                     # set P2's A20 bit(the 1 bit) to 1
 
 # Load 16bit GDT
 	lgdt gdtd16
 
 # PIC Init
 # ICW1: Init PIC, Set Enable ICW4
-// g0hhi
-//    g:  0 = edge triggering, 1 = level triggering
-//    h:  0 = cascaded PICs, 1 = master only
-//    i:  0 = no ICW4, 1 = ICW4 required
-    mov $0x11, %al
-    out %al, $I8259_MASTER_CMD
-    out %al, $I8259_SLAVE_CMD
+    mov $ICW1_ICW4 | ICW1_INIT, %al
+    out %al, $PIC_MASTER_CMD
+    out %al, $PIC_SLAVE_CMD
 
 # ICW2: Set Interrupt Address
     mov $IRQ_OFFSET, %al        # Master PIC Interrupt [RQ0, RQ8) is [0x20, 0x28)
-    out %al, $I8259_MASTER_IMR
+    out %al, $PIC_MASTER_IMR
 
     mov $IRQ_OFFSET + 8, %al    # Master PIC Interrupt [RQ8, RQ16) is [0x28, 0x30)
-    out %al, $I8259_SLAVE_IMR
+    out %al, $PIC_SLAVE_IMR
 
 # ICW3:
-    mov $BIT_SLAVE, %al         # Slave PIC connect in IRQ_SLAVE
-    out %al, $I8259_MASTER_IMR
+    mov $BIT_SLAVE, %al                 # Slave PIC connect in IRQ_SLAVE
+    out %al, $PIC_MASTER_IMR
 
-    mov $IRQ_SLAVE, %al         # connect to Master PIC's IRQ2(IRQ_SLAVE)
-    out %al, $I8259_SLAVE_IMR
+    mov $IRQ_SLAVE, %al                 # connect to Master PIC's IRQ2(IRQ_SLAVE)
+    out %al, $PIC_SLAVE_IMR
 
 # ICW4: Set Work Mode
-// 000nbmap
-//    n:  1 = special fully nested mode
-//    b:  1 = buffered mode
-//    m:  0 = slave PIC, 1 = master PIC (ignored when b is 0).
-//    a:  1 = Automatic EOI mode
-//    p:  0 = MCS-80/85 mode, 1 = intel x86 mode
-    mov $0x03, %al              # setting the PIC to 80x86 mode
-    out %al, $I8259_MASTER_IMR
-    out %al, $I8259_SLAVE_IMR
+    mov $ICW4_8086 | ICW4_AUTO, %al
+    out %al, $PIC_MASTER_IMR
+    out %al, $PIC_SLAVE_IMR
 
-# OCW3:  0ef01prs
-//   ef:  0x = NOP, 10 = clear specific mask, 11 = set specific mask
-//    p:  0 = no polling, 1 = polling mode
-//   rs:  0x = NOP, 10 = read IRR, 11 = read ISR
-    mov 0x68, %al
-    out %al, $IO_PIC1
-    out %al, $IO_PIC2
+# OCW3:
+    mov OCW3_ASM(OCW3_SET_MASK), %al
+    out %al, $PIC_MASTER_CMD
+    out %al, $PIC_SLAVE_CMD
 
-    mov 0x0A, %al
-    out %al, $IO_PIC1
-    out %al, $IO_PIC2
+    mov OCW3_ASM(OCW3_READ_IRR), %al
+    out %al, $PIC_MASTER_CMD
+    out %al, $PIC_SLAVE_CMD
 
 # Enable PE
     movl %cr0   , %eax
@@ -89,8 +76,8 @@ _start:
 	ljmp $PROT_MODE_CSEG, $SYSSEG                   # Set CS
 
 check_8042:
-    inb   $I8042_STATUS_REG, %al                    # Wait for not busy(8042 input buffer empty).
-    testb $I8042_IBUF_FULL, %al
+    inb   $KBD_STATUS_REG, %al                    # Wait for not busy(8042 input buffer empty).
+    testb $KBD_IBF_FULL, %al
     jnz   check_8042
 	ret
 

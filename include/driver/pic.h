@@ -1,7 +1,29 @@
 #pragma once
 
-#define I8259_MASTER_CMD 0x20  // Master (IRQs 0-7)
-#define I8259_MASTER_IMR 0x21
+// I8259A PIC
 
-#define I8259_SLAVE_CMD 0xA0   // Slave  (IRQs 8-15)
-#define I8259_SLAVE_IMR 0xA1
+#define PIC_MASTER_CMD 0x20  // Master (IRQs 0-7)
+#define PIC_MASTER_IMR 0x21
+
+#define PIC_SLAVE_CMD 0xA0   // Slave  (IRQs 8-15)
+#define PIC_SLAVE_IMR 0xA1
+
+#define ICW1_ICW4       0x01		/* Indicates that ICW4 will be present */
+#define ICW1_SINGLE     0x02		/* Single (cascade) mode */
+#define ICW1_INTERVAL4	0x04		/* Call address interval 4 (8) */
+#define ICW1_LEVEL      0x08		/* Level triggered (edge) mode */
+#define ICW1_INIT       0x10		/* Initialization - required! */
+
+#define ICW4_8086       0x01		/* 8086/88 (MCS-80/85) mode */
+#define ICW4_AUTO       0x02		/* Auto (normal) EOI */
+#define ICW4_BUF_SLAVE  0x08		/* Buffered mode/slave */
+#define ICW4_BUF_MASTER 0x0C		/* Buffered mode/master */
+#define ICW4_SFNM       0x10		/* Special fully nested (not) */
+
+#define OCW3_READ_IRR   0x02		/* Read interrupt request */
+#define OCW3_READ_ISR   0x03		/* Read interrupt status */
+#define OCW3_POLL       0x04		/* Poll Mode */
+#define OCW3_CLEAR_MASK 0x40		/* Clear mask */
+#define OCW3_SET_MASK   0x60		/* Set mask */
+
+#define OCW3_ASM(n)     (0x08 | (n))

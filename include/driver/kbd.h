@@ -1,10 +1,16 @@
 #pragma once
 
-#define I8042_DATA_REG   0x60  // Keyboard Data
-#define I8042_STATUS_REG 0x64  // Keyboard Controller
+// I8042 Keyboard Controller
 
-#define I8042_OBUF_FULL 0x01
-#define I8042_IBUF_FULL 0x02
+#define KBD_DATA_REG   0x60  // Keyboard Data
+#define KBD_STATUS_REG 0x64  // Keyboard Controller
+
+#define KBD_OBF_FULL 0x01
+#define KBD_IBF_FULL 0x02
+
+#define KBD_CMD_WO_PORT 0xD1   // Write to Output Port
+
+#define KBD_A20_ENABLE 0xDF
 
 // Special keycodes
 #define NO 0
