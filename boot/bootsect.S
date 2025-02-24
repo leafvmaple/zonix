@@ -1,6 +1,6 @@
 #include "arch/x86/x86_asm.h"
-#include "driver/kbd.h"
-#include "driver/pic.h"
+#include "driver/8042.h"
+#include "driver/8259.h"
 
 .set PROT_MODE_CSEG,        0x8                     # kernel code segment selector
 .set PROT_MODE_DSEG,        0x10                    # kernel data segment selector
@@ -29,10 +29,10 @@ _start:
 
 	call check_8042
 	movb $KBD_A20_ENABLE, %al
-    outb %al  , $KBD_DATA_REG                     # set P2's A20 bit(the 1 bit) to 1
+    outb %al, $KBD_DATA_REG                     # set P2's A20 bit(the 1 bit) to 1
 
 # Load 16bit GDT
-	lgdt gdtd16
+	lgdt gdt16_desc
 
 # PIC Init
 # ICW1: Init PIC, Set Enable ICW4
@@ -96,7 +96,7 @@ gdt16:
     SEG_ASM(STA_X|STA_R, 0x0, 0x7fffff)             # code seg for bootloader and kernel
     SEG_ASM(STA_W, 0x0, 0x7fffff)                   # data seg for bootloader and kernel
 
-gdtd16:
+gdt16_desc:
     .word 0x800                                     # sizeof(gdt) - 1
     .long gdt16                                     # address gdt
 
