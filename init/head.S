@@ -1,13 +1,11 @@
 #include "arch/x86/x86_asm.h"
-
-.set PROT_MODE_CSEG, 0x8                            # kernel code segment selector
-.set PROT_MODE_DSEG, 0x10                           # kernel data segment selector
+#include "arch/x86/x86_def.h"
 
 .globl __gdt, __idt
 
 .code32                                             # Assemble for 32-bit mode
 _main:
-	movw $PROT_MODE_DSEG, %ax                       # Our data segment selector
+	movw $KERNEL_DS, %ax                            # Our data segment selector
     movw %ax, %ds                                   # -> DS: Data Segment
     movw %ax, %es                                   # -> ES: Extra Segment
     movw %ax, %fs                                   # -> FS
@@ -38,10 +36,10 @@ _load_gdt:
 
 .align 8
 __gdt:
-	SEG_NULL_ASM							# NULL descriptor
-	SEG_ASM(STA_X|STA_R, 0x0, 0xffffffff)	# code seg for bootloader and kernel, 16Mb limit=0x0FFF, base=0x0000, read/exec , granularity=4096
-    SEG_ASM(STA_W      , 0x0, 0xffffffff)	# data seg for bootloader and kernel, 16Mb limit=0x0FFF, base=0x0000, read/write, granularity=4096
-	SEG_NULL_ASM							# TEMPORARY - don't use 
+	GEN_SEG_NULL							# NULL descriptor
+	GEN_SEG_DESC(STA_X|STA_R, 0x0, 0xffffffff)	# code seg for bootloader and kernel, 16Mb limit=0x0FFF, base=0x0000, read/exec , granularity=4096
+    GEN_SEG_DESC(STA_W      , 0x0, 0xffffffff)	# data seg for bootloader and kernel, 16Mb limit=0x0FFF, base=0x0000, read/write, granularity=4096
+	GEN_SEG_NULL							# TEMPORARY - don't use 
 
 	.fill 252, 8, 0							# space for LDT's and TSS's etc
 

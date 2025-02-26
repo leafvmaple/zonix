@@ -1,13 +1,11 @@
 #include "arch/x86/x86_asm.h"
+#include "arch/x86/x86_def.h"
 #include "driver/8042.h"
 #include "driver/8259.h"
 
-.set PROT_MODE_CSEG,        0x8                     # kernel code segment selector
-.set PROT_MODE_DSEG,        0x10                    # kernel data segment selector
-
 .set SYSSEG, 0x0
 
-.globl _start
+.global _start
 _start:
 .code16                                             # Assemble for 16-bit mode
     # Set up the important data segment registers (DS, ES, SS).
@@ -32,7 +30,7 @@ _start:
     outb %al, $KBD_DATA_REG                     # set P2's A20 bit(the 1 bit) to 1
 
 # Load 16bit GDT
-	lgdt gdt16_desc
+    lgdt gdt48
 
 # PIC Init
 # ICW1: Init PIC, Set Enable ICW4
@@ -73,7 +71,7 @@ _start:
     orl  $CR0_PE, %eax                              
     movl %eax   , %cr0
 
-	ljmp $PROT_MODE_CSEG, $SYSSEG                   # Set CS
+	ljmp $KERNEL_CS, $SYSSEG  # Set CS
 
 check_8042:
     inb   $KBD_STATUS_REG, %al                    # Wait for not busy(8042 input buffer empty).
@@ -92,11 +90,11 @@ _dap:
 
 .p2align 2
 gdt16:
-    SEG_NULL_ASM                                    # null seg
-    SEG_ASM(STA_X|STA_R, 0x0, 0x7fffff)             # code seg for bootloader and kernel
-    SEG_ASM(STA_W, 0x0, 0x7fffff)                   # data seg for bootloader and kernel
+    GEN_SEG_NULL                                    # null seg
+    GEN_SEG_DESC(STA_X|STA_R, 0x0, 0x7fffff)        # code seg for bootloader and kernel
+    GEN_SEG_DESC(STA_W, 0x0, 0x7fffff)              # data seg for bootloader and kernel
 
-gdt16_desc:
+gdt48:
     .word 0x800                                     # sizeof(gdt) - 1
     .long gdt16                                     # address gdt
 

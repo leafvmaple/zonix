@@ -17,7 +17,7 @@ OBJDUMP := objdump
 OBJCOPY := objcopy
 MKDIR   := mkdir -p
 
-TERMINAL :=gnome-terminal
+TERMINAL :=wt.exe wsl
 
 ALLOBJS	:=  # 用来最终mkdir
 
@@ -154,7 +154,7 @@ bochs:
 	bochs -q -f bochsrc.bxrc
 
 gdb: bin/zonix.img
-	$(TERMINAL) -e "bochs -q -f bochsrc.bxrc"
+	$(TERMINAL) -e bochs -q -f bochsrc_debug.bxrc
 	sleep 2
 	gdb -q -x tools/gdbinit
 

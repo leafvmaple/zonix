@@ -7,5 +7,15 @@
         "tty.h": "c",
         "x86.h": "c",
         "x86_struct.h": "c"
-    }
+    },
+    "cSpell.words": [
+        "lgdt",
+        "ljmp",
+        "movb",
+        "movl",
+        "movw",
+        "outb",
+        "testb",
+        "xorw"
+    ]
 }

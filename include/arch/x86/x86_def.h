@@ -55,7 +55,7 @@
 #define GD_KDATA ((SEG_KDATA) << 3)  // kernel data
 #define GD_UTEXT ((SEG_UTEXT) << 3)  // user text
 #define GD_UDATA ((SEG_UDATA) << 3)  // user data
-#define GD_TSS   ((SEG_TSS)   << 3)      // task segment selector
+#define GD_TSS   ((SEG_TSS)   << 3)  // task segment selector
 
 #define KERNEL_CS ((GD_KTEXT) | DPL_KERNEL)
 #define KERNEL_DS ((GD_KDATA) | DPL_KERNEL)

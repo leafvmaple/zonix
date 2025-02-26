@@ -3,7 +3,10 @@
 ## envirenment
 
 ```
-sudo apt install gnome-terminal
+sudo apt install make
+sudo apt install gcc
+sudo apt install nasm
+sudo apt install bochs-x
 ```
 
 ## bulid
