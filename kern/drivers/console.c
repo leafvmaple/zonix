@@ -1,6 +1,6 @@
 #include "console.h"
 #include "arch/x86/x86.h"
-#include "driver/8042.h"
+#include "drivers/i8042.h"
 #include "pic.h"
 
 #define CGA_BASE        0x3D4

@@ -1,7 +1,7 @@
 #include "arch/x86/x86_asm.h"
 #include "arch/x86/x86_def.h"
-#include "driver/8042.h"
-#include "driver/8259.h"
+#include "drivers/i8042.h"
+#include "drivers/i8259.h"
 
 .set SYSSEG, 0x0
 

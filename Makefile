@@ -100,7 +100,7 @@ make_dir = $(eval $(call do_make_dir))
 
 KSRCDIR :=	kern        \
 			kern/trap   \
-			kern/driver \
+			kern/drivers \
 			kern/sched  \
 			kern/mm
 
