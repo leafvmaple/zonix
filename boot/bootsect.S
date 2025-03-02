@@ -1,5 +1,6 @@
 #include "arch/x86/x86_asm.h"
 #include "arch/x86/x86_def.h"
+#include "arch/x86/int.h"
 #include "drivers/i8042.h"
 #include "drivers/i8259.h"
 
@@ -15,10 +16,10 @@ _start:
     movw %ax, %ss                                   # -> Stack Segment
 
 # read track from disk sector [1, 33)
-    mov  $_dap, %si
-    movb $0x42, %ah                                 # AH=0x42, LAB Mode
-    movb $0x80, %dl                                 # DL=0x80, Hard Disk Driver 0
-    int  $0x13
+    mov  $dap, %si
+    movb $INT_DISK_AH_LAB_READ, %ah                 # AH=0x42, LBA Mode
+    movb $INT_DISK_DL_HDD, %dl                      # DL=0x80, Hard Disk Driver 0
+    int  $INT_DISK
 	
 # Enable A20
 	call check_8042
@@ -80,13 +81,9 @@ check_8042:
 	ret
 
 .align 16
-_dap:
-    .byte 0x10
-    .byte 0x00
-    .word 32
-    .word 0x00
-    .word 0x00
-    .quad 1
+// Disk Address Packet
+dap:
+    GEN_DAP(32,0,0,1)
 
 .p2align 2
 gdt16:
