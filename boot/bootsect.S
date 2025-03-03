@@ -1,8 +1,8 @@
 #include "arch/x86/x86_asm.h"
 #include "arch/x86/x86_def.h"
-#include "arch/x86/int.h"
-#include "drivers/i8042.h"
-#include "drivers/i8259.h"
+#include "asm/x86/int.h"
+#include "asm/drivers/i8042.h"
+#include "asm/drivers/i8259.h"
 
 .set SYSSEG, 0x0
 
@@ -83,7 +83,7 @@ check_8042:
 .align 16
 // Disk Address Packet
 dap:
-    GEN_DAP(32,0,0,1)
+    GEN_DAP(32, 0, 0, 1)
 
 .p2align 2
 gdt16:
