@@ -14,7 +14,7 @@ _main:
 	cli                                             # Disable interrupts
     cld                                             # String operations increment
 
-    lgdt _gdtdesc
+    call _load_gdt
     lidt _idtdesc
 
 	movw %ax, %ds                                   # -> DS: Data Segment
@@ -37,19 +37,21 @@ _load_gdt:
 __gdt:
 	GEN_SEG_NULL							# NULL descriptor
 	GEN_SEG_DESC(STA_X|STA_R, 0x0, 0xffffffff)	# code seg for bootloader and kernel, 16Mb limit=0x0FFF, base=0x0000, read/exec , granularity=4096
-    GEN_SEG_DESC(STA_W      , 0x0, 0xffffffff)	# data seg for bootloader and kernel, 16Mb limit=0x0FFF, base=0x0000, read/write, granularity=4096
+    GEN_SEG_DESC(STA_W , 0x0, 0xffffffff)	# data seg for bootloader and kernel, 16Mb limit=0x0FFF, base=0x0000, read/write, granularity=4096
 	GEN_SEG_NULL							# TEMPORARY - don't use 
 
 	.fill 252, 8, 0							# space for LDT's and TSS's etc
+__gdt_end:
 
 __idt:
 	.fill 256, 8, 0							# idt is uninitialized, initial by trap_init
+__idt_end:
 
 .align 2
 _gdtdesc:
-	.word 256 * 8 - 1						# sizeof(gdt) - 1
+	.word __gdt_end - __gdt - 1				# sizeof(gdt) - 1
 	.long __gdt
 
 _idtdesc:
-	.word 256 * 8 - 1						# sizeof(_idt) - 1, idt contains 256 entries
+	.word __idt_end - __idt - 1				# sizeof(_idt) - 1, idt contains 256 entries
 	.long __idt
