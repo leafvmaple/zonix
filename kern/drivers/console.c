@@ -1,16 +1,11 @@
 #include "console.h"
+
+#include "cga.h"
+#include "pic.h"
+
 #include "asm/drivers/i8259.h"
 #include "asm/drivers/i8042.h"
 #include "kernel/asm.h"
-#include "pic.h"
-
-#define CGA_BASE        0x3D4
-#define CGA_BUF         0xB8000
-
-#define CRT_COLS        80
-
-uint16_t *crt_buf = (uint16_t *)CGA_BUF;
-static uint16_t crt_pos = 0;
 
 static uint8_t normal_map[256] = {
     NO  , 0x1B, '1', '2' , '3' , '4', '5' , '6' ,  // 0x00
@@ -31,39 +26,6 @@ static uint8_t normal_map[256] = {
     [0xD0] KEY_DN  , [0xD1] KEY_PGDN,
     [0xD2] KEY_INS , [0xD3] KEY_DEL
 };
-
-void cga_init() {
-    outb(CGA_BASE, 14);                                        
-    crt_pos = inb(CGA_BASE + 1) << 8;
-    outb(CGA_BASE, 15);
-    crt_pos |= inb(CGA_BASE + 1);
-}
-
-void cga_putc(int c) {
-    c |= 0x0700;
-
-    switch (c & 0xFF) {
-    case '\b':
-        if (crt_pos > 0) {
-            crt_pos--;
-            crt_buf[crt_pos] = (c & ~0xff) | ' ';
-        }
-        break;
-    case '\n':
-        crt_pos += CRT_COLS;
-    case '\r':
-        crt_pos -= (crt_pos % CRT_COLS);
-        break;
-    default:
-        crt_buf[crt_pos++] = c;     // write the character
-        break;
-    }
-
-    outb(CGA_BASE, 14);
-    outb(CGA_BASE + 1, crt_pos >> 8);
-    outb(CGA_BASE, 15);
-    outb(CGA_BASE + 1, crt_pos);
-}
 
 static void kbd_init(void) {
     pic_enable(IRQ_KBD);

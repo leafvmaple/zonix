@@ -1,5 +1,5 @@
 #include "sched.h"
-#include "def.h"
+#include "types.h"
 #include "arch/x86/x86_struct.h"
 
 extern struct seg_desc __gdt[];

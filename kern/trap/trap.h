@@ -1,5 +1,5 @@
 #pragma once
-#include "def.h"
+#include "types.h"
 
 struct trap_regs {
     uint32_t reg_edi;
