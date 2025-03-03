@@ -6,10 +6,12 @@
         "x86_def.h": "c",
         "tty.h": "c",
         "x86.h": "c",
-        "x86_struct.h": "c"
+        "x86_struct.h": "c",
+        "i8042.h": "c"
     },
     "cSpell.words": [
         "lgdt",
+        "lidt",
         "ljmp",
         "movb",
         "movl",

@@ -4,8 +4,6 @@
 #include "asm/drivers/i8042.h"
 #include "asm/drivers/i8259.h"
 
-.set SYSSEG, 0x0
-
 .global _start
 _start:
 .code16                                             # Assemble for 16-bit mode
@@ -72,7 +70,7 @@ _start:
     orl  $CR0_PE, %eax                              
     movl %eax   , %cr0
 
-	ljmp $KERNEL_CS, $SYSSEG  # Set CS
+	ljmp $KERNEL_CS, $0x0  # Set CS
 
 check_8042:
     inb   $KBD_STATUS_REG, %al                    # Wait for not busy(8042 input buffer empty).

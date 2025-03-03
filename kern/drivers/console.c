@@ -1,6 +1,7 @@
 #include "console.h"
-#include "arch/x86/x86.h"
+#include "asm/drivers/i8259.h"
 #include "asm/drivers/i8042.h"
+#include "kernel/asm.h"
 #include "pic.h"
 
 #define CGA_BASE        0x3D4
