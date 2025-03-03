@@ -3,19 +3,25 @@
 #include "types.h"
 #include "kernel/asm.h"
 
-#define CGA_BASE        0x3D4
+#define CGA_IDX_REG  0x3D4
+#define CGA_DATA_REG 0x3D5
+
+#define CRTC_CURSOR_HIGH 0x0E
+#define CRTC_CURSOR_LOW  0x0F
+
 #define CGA_BUF         0xB8000
 
+#define CRT_ROWS        25
 #define CRT_COLS        80
 
 uint16_t *crt_buf = (uint16_t *)CGA_BUF;
 static uint16_t crt_pos = 0;
 
 void cga_init() {
-    outb(CGA_BASE, 14);                                        
-    crt_pos = inb(CGA_BASE + 1) << 8;
-    outb(CGA_BASE, 15);
-    crt_pos |= inb(CGA_BASE + 1);
+    outb(CGA_IDX_REG, CRTC_CURSOR_HIGH);
+    crt_pos = inb(CGA_DATA_REG) << 8;
+    outb(CGA_IDX_REG, CRTC_CURSOR_LOW);
+    crt_pos |= inb(CGA_DATA_REG);
 }
 
 void cga_putc(int c) {
@@ -38,8 +44,8 @@ void cga_putc(int c) {
         break;
     }
 
-    outb(CGA_BASE, 14);
-    outb(CGA_BASE + 1, crt_pos >> 8);
-    outb(CGA_BASE, 15);
-    outb(CGA_BASE + 1, crt_pos);
+    outb(CGA_IDX_REG, CRTC_CURSOR_HIGH);
+    outb(CGA_DATA_REG, crt_pos >> 8);
+    outb(CGA_IDX_REG, CRTC_CURSOR_LOW);
+    outb(CGA_DATA_REG, crt_pos);
 }

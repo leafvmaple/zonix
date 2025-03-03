@@ -11,6 +11,7 @@
         "types.h": "c"
     },
     "cSpell.words": [
+        "CRTC",
         "lgdt",
         "lidt",
         "ljmp",
