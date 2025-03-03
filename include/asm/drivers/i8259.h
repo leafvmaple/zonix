@@ -2,11 +2,11 @@
 
 // I8259A PIC
 
-#define PIC_MASTER_CMD 0x20  // Master (IRQs 0-7)
-#define PIC_MASTER_IMR 0x21
+#define PIC1_CMD 0x20  // Master (IRQs 0-7)
+#define PIC1_IMR 0x21
 
-#define PIC_SLAVE_CMD 0xA0   // Slave  (IRQs 8-15)
-#define PIC_SLAVE_IMR 0xA1
+#define PIC2_CMD 0xA0   // Slave  (IRQs 8-15)
+#define PIC2_IMR 0xA1
 
 #define ICW1_ICW4       0x01		/* Indicates that ICW4 will be present */
 #define ICW1_SINGLE     0x02		/* Single (cascade) mode */

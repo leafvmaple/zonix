@@ -1,13 +1,14 @@
 #include "pic.h"
-#include "arch/x86/x86.h"
+
+#include "asm/drivers/i8259.h"
 
 // Initial IRQ mask has interrupt 2 enabled (for slave 8259A).
 static uint16_t irq_mask = 0xFFFF;
 
 void pic_setmask(uint16_t mask) {
     irq_mask = mask;
-    outb(IO_PIC1 + 1, mask);
-    outb(IO_PIC2 + 1, mask >> 8);
+    outb(PIC1_IMR, mask);
+    outb(PIC2_IMR, mask >> 8);
 }
 
 void pic_enable(unsigned int irq) {

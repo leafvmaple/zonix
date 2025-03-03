@@ -34,36 +34,36 @@ _start:
 # PIC Init
 # ICW1: Init PIC, Set Enable ICW4
     mov $ICW1_ICW4 | ICW1_INIT, %al
-    out %al, $PIC_MASTER_CMD
-    out %al, $PIC_SLAVE_CMD
+    out %al, $PIC1_CMD
+    out %al, $PIC2_CMD
 
 # ICW2: Set Interrupt Address
     mov $IRQ_OFFSET, %al        # Master PIC Interrupt [RQ0, RQ8) is [0x20, 0x28)
-    out %al, $PIC_MASTER_IMR
+    out %al, $PIC1_IMR
 
     mov $IRQ_OFFSET + 8, %al    # Master PIC Interrupt [RQ8, RQ16) is [0x28, 0x30)
-    out %al, $PIC_SLAVE_IMR
+    out %al, $PIC2_IMR
 
 # ICW3:
     mov $BIT_SLAVE, %al                 # Slave PIC connect in IRQ_SLAVE
-    out %al, $PIC_MASTER_IMR
+    out %al, $PIC1_IMR
 
     mov $IRQ_SLAVE, %al                 # connect to Master PIC's IRQ2(IRQ_SLAVE)
-    out %al, $PIC_SLAVE_IMR
+    out %al, $PIC2_IMR
 
 # ICW4: Set Work Mode
     mov $ICW4_8086 | ICW4_AUTO, %al
-    out %al, $PIC_MASTER_IMR
-    out %al, $PIC_SLAVE_IMR
+    out %al, $PIC1_IMR
+    out %al, $PIC2_IMR
 
 # OCW3:
     mov OCW3_ASM(OCW3_SET_MASK), %al
-    out %al, $PIC_MASTER_CMD
-    out %al, $PIC_SLAVE_CMD
+    out %al, $PIC1_CMD
+    out %al, $PIC2_CMD
 
     mov OCW3_ASM(OCW3_READ_IRR), %al
-    out %al, $PIC_MASTER_CMD
-    out %al, $PIC_SLAVE_CMD
+    out %al, $PIC1_CMD
+    out %al, $PIC2_CMD
 
 # Enable PE
     movl %cr0   , %eax
