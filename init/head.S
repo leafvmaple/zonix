@@ -1,5 +1,4 @@
-#include "arch/x86/x86_asm.h"
-#include "arch/x86/x86_def.h"
+#include "asm/x86/seg.h"
 
 .globl __gdt, __idt
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "x86_def.h"
+#include "asm/x86/seg.h"
 
 typedef struct gate_desc {
     unsigned gd_off_15_0  : 16;  // low 16 bits of offset in segment
