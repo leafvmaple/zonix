@@ -1,6 +1,6 @@
 #include "asm/x86/cr.h"
 #include "asm/x86/seg.h"
-#include "asm/x86/int.h"
+#include "asm/x86/intr.h"
 #include "asm/drivers/i8042.h"
 #include "asm/drivers/i8259.h"
 

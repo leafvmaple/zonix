@@ -1,4 +1,4 @@
-#include "console.h"
+#include "cons.h"
 
 #include "cga.h"
 #include "pic.h"

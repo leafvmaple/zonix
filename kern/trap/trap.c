@@ -1,5 +1,11 @@
 #include "trap.h"
+
 #include "unistd.h"
+#include "types.h"
+
+#include "../drivers/kdb.h"
+#include "../drivers/cons.h"
+
 #include "arch/x86/x86.h"
 #include "arch/x86/x86_struct.h"
 
@@ -17,7 +23,7 @@ void trap(struct trap_frame *tf) {
         case IRQ_OFFSET + IRQ_TIMER:
             break;
         case IRQ_OFFSET + IRQ_KBD:
-            char c = cons_getc();
+            char c = kdb_getc();
             cons_putc(c);
             break;
         case IRQ_OFFSET + IRQ_IDE1:

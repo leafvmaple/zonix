@@ -1,5 +1,5 @@
 #include "stdio.h"
-#include "drivers/console.h"
+#include "drivers/cons.h"
 #include "drivers/pic.h"
 #include "drivers/time.h"
 #include "drivers/hd.h"
@@ -13,9 +13,9 @@ static inline _syscall0(int, pause)
 
 __attribute__((noreturn))
 int kern_init(void) {
+    pic_init();
     cons_init();
     pmm_init(4 * 1024 * 1024, 16 * 1024 * 1024);
-    pic_init();
     trap_init();
     time_init();
     sched_init();
