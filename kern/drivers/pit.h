@@ -1,5 +1,7 @@
 #pragma once
 
+#include "types.h"
+
 struct tm {
 	int tm_sec;
 	int tm_min;
@@ -11,5 +13,7 @@ struct tm {
 	int tm_yday;
 	int tm_isdst;
 };
+
+extern volatile int64_t ticks;
 
 void pit_init(void);

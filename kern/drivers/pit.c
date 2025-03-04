@@ -2,16 +2,10 @@
 #include "pic.h"
 
 #include "kernel/asm.h"
+#include "asm/drivers/i8254.h"
 #include "asm/drivers/i8259.h"
 
-#define IO_TIMER1 0x040  // 8253 Timer #1
-#define TIMER_MODE (IO_TIMER1 + 3)  // timer mode port
-
-long startup_time = 0;
-
-#define TIMER_SEL0    0x00          // select counter 0
-#define TIMER_RATEGEN 0x04          // mode 2, rate generator
-#define TIMER_16BIT   0x30          // r/w counter 16 bits, LSB first
+volatile int64_t ticks = 0;
 
 #define TIMER_FREQ 1193180
 #define TIMER_DIV(x) (TIMER_FREQ / (x))
@@ -42,10 +36,10 @@ void pit_init(void) {
 	time.tm_mon  = BCD_TO_BIN(time.tm_mon);
 	time.tm_year = BCD_TO_BIN(time.tm_year);
 
-    outb(TIMER_MODE, TIMER_SEL0 | TIMER_RATEGEN | TIMER_16BIT);
+    outb(PIT_CTRL_REG, PIT_SEL_TIMER0 | PIT_RATE_GEN | PIT_16BIT);
 
-    outb(IO_TIMER1, TIMER_DIV(100) % 256);
-    outb(IO_TIMER1, TIMER_DIV(100) / 256);
+    outb(PIT_TIMER0_REG, TIMER_DIV(100) % 256);
+    outb(PIT_TIMER0_REG, TIMER_DIV(100) / 256);
 
     pic_enable(IRQ_TIMER);
 }

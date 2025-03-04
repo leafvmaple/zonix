@@ -6,6 +6,7 @@
 #include "kernel/desc.h"
 
 #include "../drivers/kdb.h"
+#include "../drivers/pit.h"
 #include "../cons/cons.h"
 
 extern gate_desc __idt[];
@@ -20,6 +21,7 @@ void trap_init() {
 void trap(struct trap_frame *tf) {
     switch(tf->tf_trapno) {
         case IRQ_OFFSET + IRQ_TIMER:
+            ticks++;
             break;
         case IRQ_OFFSET + IRQ_KBD:
             char c = kdb_getc();

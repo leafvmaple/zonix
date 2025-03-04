@@ -13,7 +13,9 @@
         "pic.h": "c",
         "i8259.h": "c",
         "stdio.h": "c",
-        "cons.h": "c"
+        "cons.h": "c",
+        "pit.h": "c",
+        "asm.h": "c"
     },
     "cSpell.words": [
         "CMOS",
