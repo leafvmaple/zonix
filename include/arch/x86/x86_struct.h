@@ -42,7 +42,7 @@ __asm__ (               \
 #endif
 
 #define SET_TRAP_GATE(gate, addr) SET_GATE(gate, STS_TG32, GD_KTEXT, DPL_KERNEL, addr)
-#define SET_SYS_GATE(gate, addr)  SET_GATE(gate, STS_TG32, GD_KTEXT, DPL_USER  , addr)
+#define SET_SYS_GATE(gate, addr) SET_GATE(gate, STS_TG32, GD_KTEXT, DPL_USER, addr)
 
 struct seg_desc {
     unsigned sd_lim_15_0   : 16; // low bits of segment limit

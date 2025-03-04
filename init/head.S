@@ -1,6 +1,6 @@
 #include "asm/x86/seg.h"
 
-.global __gdt, __idt
+.globl __gdt, __idt
 
 .code32                                             # Assemble for 32-bit mode
 _main:

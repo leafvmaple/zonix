@@ -16,7 +16,10 @@
         "cons.h": "c"
     },
     "cSpell.words": [
+        "CMOS",
         "CRTC",
+        "globl",
+        "KTEXT",
         "lgdt",
         "lidt",
         "ljmp",
@@ -24,6 +27,7 @@
         "movl",
         "movw",
         "outb",
+        "pushl",
         "testb",
         "xorw",
         "Zonix"

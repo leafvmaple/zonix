@@ -2,12 +2,11 @@
 
 #include "unistd.h"
 #include "types.h"
+#include "asm/drivers/i8259.h"
+#include "kernel/desc.h"
 
 #include "../drivers/kdb.h"
 #include "../cons/cons.h"
-
-#include "arch/x86/x86.h"
-#include "arch/x86/x86_struct.h"
 
 extern gate_desc __idt[];
 extern uintptr_t __vectors[];

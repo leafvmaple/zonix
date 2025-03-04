@@ -4,7 +4,7 @@
 #include "asm/drivers/i8042.h"
 #include "asm/drivers/i8259.h"
 
-.global _start
+.globl _start
 _start:
 .code16                                             # Assemble for 16-bit mode
     # Set up the important data segment registers (DS, ES, SS).
