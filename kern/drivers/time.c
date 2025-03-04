@@ -1,6 +1,8 @@
 #include "time.h"
-#include "arch/x86/x86.h"
 #include "pic.h"
+
+#include "kernel/asm.h"
+#include "asm/drivers/i8259.h"
 
 #define IO_TIMER1 0x040  // 8253 Timer #1
 #define TIMER_MODE (IO_TIMER1 + 3)  // timer mode port
