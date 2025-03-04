@@ -12,4 +12,4 @@ struct tm {
 	int tm_isdst;
 };
 
-void time_init(void);
+void pit_init(void);

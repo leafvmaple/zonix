@@ -1,7 +1,7 @@
 #include "cons.h"
 
-#include "cga.h"
-#include "pic.h"
+#include "../drivers/cga.h"
+#include "../drivers/pic.h"
 
 #include "asm/drivers/i8259.h"
 #include "asm/drivers/i8042.h"

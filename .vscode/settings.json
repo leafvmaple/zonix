@@ -8,7 +8,12 @@
         "x86.h": "c",
         "x86_struct.h": "c",
         "i8042.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "cga.h": "c",
+        "pic.h": "c",
+        "i8259.h": "c",
+        "stdio.h": "c",
+        "cons.h": "c"
     },
     "cSpell.words": [
         "CRTC",

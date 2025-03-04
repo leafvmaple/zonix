@@ -31,8 +31,10 @@
 #define IRQ_TIMER 0
 #define IRQ_KBD   1
 #define IRQ_SLAVE 2
+
+#define IRQ_RTC   8
 #define IRQ_IDE1  14
-#define IRQ_IDE2  14
+#define IRQ_IDE2  15
 
 #define IRQ_OFFSET 0x20
 

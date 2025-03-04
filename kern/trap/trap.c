@@ -4,7 +4,7 @@
 #include "types.h"
 
 #include "../drivers/kdb.h"
-#include "../drivers/cons.h"
+#include "../cons/cons.h"
 
 #include "arch/x86/x86.h"
 #include "arch/x86/x86_struct.h"

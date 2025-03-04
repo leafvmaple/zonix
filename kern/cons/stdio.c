@@ -1,5 +1,5 @@
 #include "stdio.h"
-#include "drivers/console.h"
+#include "cons.h"
 #include "stdarg.h"
 
 #define FMT_NONE 0

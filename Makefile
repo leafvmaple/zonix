@@ -98,10 +98,11 @@ make_dir = $(eval $(call do_make_dir))
 
 #####################################################################################
 
-KSRCDIR :=	kern        \
-			kern/trap   \
+KSRCDIR :=	kern         \
+            kern/cons    \
+			kern/trap    \
 			kern/drivers \
-			kern/sched  \
+			kern/sched   \
 			kern/mm
 
 $(call add_packet_files_cc,$(call listf_cc,init),initial)

@@ -1,4 +1,4 @@
-#include "time.h"
+#include "pit.h"
 #include "pic.h"
 
 #include "kernel/asm.h"
@@ -23,7 +23,7 @@ static uint8_t CMOS_READ(uint8_t addr) {
 
 #define BCD_TO_BIN(val) (((val) & 0xF) + ((val) >> 4) * 10)
 
-void time_init(void) {
+void pit_init(void) {
     struct tm time;
 
     do {
