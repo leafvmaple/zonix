@@ -20,6 +20,8 @@
         "movw",
         "outb",
         "testb",
-        "xorw"
-    ]
+        "xorw",
+        "Zonix"
+    ],
+    "files.eol": "\n"
 }

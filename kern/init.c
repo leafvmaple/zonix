@@ -11,8 +11,7 @@
 
 static inline _syscall0(int, pause)
 
-int kern_init(void) __attribute__((noreturn));
-
+__attribute__((noreturn))
 int kern_init(void) {
     cons_init();
     pmm_init(4 * 1024 * 1024, 16 * 1024 * 1024);
