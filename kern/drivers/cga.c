@@ -1,7 +1,7 @@
 #include "cga.h"
 
 #include "types.h"
-#include "kernel/asm.h"
+#include "io.h"
 
 #define CGA_IDX_REG  0x3D4
 #define CGA_DATA_REG 0x3D5

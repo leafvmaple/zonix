@@ -1,9 +1,9 @@
 #include "pit.h"
 #include "pic.h"
 
-#include "kernel/asm.h"
-#include "asm/drivers/i8254.h"
-#include "asm/drivers/i8259.h"
+#include "io.h"
+#include "defs/drivers/i8254.h"
+#include "defs/drivers/i8259.h"
 
 volatile int64_t ticks = 0;
 

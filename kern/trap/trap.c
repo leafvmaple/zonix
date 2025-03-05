@@ -3,21 +3,12 @@
 #include "unistd.h"
 #include "types.h"
 #include "stdio.h"
-#include "asm/drivers/i8259.h"
-#include "kernel/desc.h"
+
+#include "defs/drivers/i8259.h"
 
 #include "../drivers/kdb.h"
 #include "../drivers/pit.h"
 #include "../cons/cons.h"
-
-extern gate_desc __idt[];
-extern uintptr_t __vectors[];
-
-void trap_init() {
-    for (int i = 0; i < 256; i++)
-        SET_TRAP_GATE(&__idt[i], __vectors[i]);
-    SET_SYS_GATE(&__idt[T_SYSCALL], __vectors[T_SYSCALL]);
-}
 
 #define TICK_NUM 100
 

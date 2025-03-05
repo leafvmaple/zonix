@@ -56,7 +56,7 @@ tobin = $(addprefix $(BINDIR)$(SLASH),$(addsuffix .bin,$(1)))
 # ALLOBJS += obj/src/file1.o
 define compile
 $$(call toobj,$(1)): $(1) | $$$$(dir $$$$@)
-	$(2) -Iinclude -I$$(dir $(1)) $(3) -c $$< -o $$@
+	$(2) -I$$(dir $(1)) $(3) -c $$< -o $$@
 ALLOBJS += $$(call toobj,$(1))
 endef
 
@@ -98,12 +98,19 @@ make_dir = $(eval $(call do_make_dir))
 
 #####################################################################################
 
+INCLUDE	+=  include  \
+            kern/include
+
 KSRCDIR :=	kern         \
+            kern/arch    \
             kern/cons    \
 			kern/trap    \
 			kern/drivers \
 			kern/sched   \
 			kern/mm
+
+
+CFLAGS	+= $(addprefix -I,$(INCLUDE))
 
 $(call add_packet_files_cc,$(call listf_cc,init),initial)
 $(call add_packet_files_cc,$(call listf_cc,$(KSRCDIR)),kernel)

@@ -15,7 +15,8 @@
         "stdio.h": "c",
         "cons.h": "c",
         "pit.h": "c",
-        "asm.h": "c"
+        "io.h": "c",
+        "kdb.h": "c"
     },
     "cSpell.words": [
         "CMOS",

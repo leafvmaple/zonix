@@ -1,4 +1,4 @@
-#include "asm/x86/seg.h"
+#include "defs/x86/seg.h"
 
 .globl __gdt, __idt
 

@@ -1,8 +1,8 @@
-#include "asm/x86/cr.h"
-#include "asm/x86/seg.h"
-#include "asm/x86/intr.h"
-#include "asm/drivers/i8042.h"
-#include "asm/drivers/i8259.h"
+#include "defs/x86/cr.h"
+#include "defs/x86/seg.h"
+#include "defs/x86/intr.h"
+#include "defs/drivers/i8042.h"
+#include "defs/drivers/i8259.h"
 
 .globl _start
 _start:

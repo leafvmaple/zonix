@@ -3,9 +3,9 @@
 #include "../drivers/cga.h"
 #include "../drivers/pic.h"
 
-#include "asm/drivers/i8259.h"
-#include "asm/drivers/i8042.h"
-#include "kernel/asm.h"
+#include "defs/drivers/i8259.h"
+#include "defs/drivers/i8042.h"
+#include "io.h"
 
 
 void cons_init() {

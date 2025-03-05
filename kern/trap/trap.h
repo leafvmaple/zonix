@@ -19,5 +19,3 @@ struct trap_frame {
     uint32_t tf_err;
     uintptr_t tf_eip;
 };
-
-void trap_init(void);

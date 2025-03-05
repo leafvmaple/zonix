@@ -1,10 +1,10 @@
 #include "kdb.h"
 
-#include "asm/drivers/i8042.h"
-#include "asm/drivers/i8259.h"
+#include "defs/drivers/i8042.h"
+#include "defs/drivers/i8259.h"
 
 #include "types.h"
-#include "kernel/asm.h"
+#include "io.h"
 
 static uint8_t normal_map[256] = {
     NO  , 0x1B, '1', '2' , '3' , '4', '5' , '6' ,  // 0x00

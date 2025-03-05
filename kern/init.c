@@ -2,9 +2,9 @@
 #include "drivers/pit.h"
 #include "drivers/hd.h"
 #include "drivers/intr.h"
+#include "arch/idt.h"
 #include "cons/cons.h"
 #include "mm/pmm.h"
-#include "trap/trap.h"
 #include "sched/sched.h"
 #include "unistd.h"
 
@@ -18,7 +18,7 @@ int kern_init(void) {
 
     cons_init();
     pmm_init(4 * 1024 * 1024, 16 * 1024 * 1024);
-    trap_init();
+    idt_init();
     sched_init();
 
     intr_enable();
