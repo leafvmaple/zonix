@@ -1,5 +1,6 @@
 file bin/kernel
 target remote :1234
-b kern_init
-b time.c:36
+# b kern_init
+# b time.c:36
+b trap.c:29
 c

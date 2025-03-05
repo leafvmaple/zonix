@@ -2,6 +2,7 @@
 
 #include "unistd.h"
 #include "types.h"
+#include "stdio.h"
 #include "asm/drivers/i8259.h"
 #include "kernel/desc.h"
 
@@ -18,10 +19,15 @@ void trap_init() {
     SET_SYS_GATE(&__idt[T_SYSCALL], __vectors[T_SYSCALL]);
 }
 
+#define TICK_NUM 100
+
 void trap(struct trap_frame *tf) {
     switch(tf->tf_trapno) {
         case IRQ_OFFSET + IRQ_TIMER:
             ticks++;
+            if ((int)ticks % TICK_NUM == 0) {
+                cprintf("%d ticks\n", TICK_NUM);
+            }
             break;
         case IRQ_OFFSET + IRQ_KBD:
             char c = kdb_getc();
