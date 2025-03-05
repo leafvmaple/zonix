@@ -52,3 +52,10 @@
     .word (((lim) >> 12) & 0xffff), ((base) & 0xffff);          \
     .byte (((base) >> 16) & 0xff), (0x90 | (type)), (0xC0 | (((lim) >> 28) & 0xf)), (((base) >> 24) & 0xff)
 
+
+// Memory Layout
+
+#define KERNEL_ENTRY 0x1000
+
+#define E820_MEM_CNT  0x8000
+#define E820_MEM_BASE 0x8004

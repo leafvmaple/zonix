@@ -5,14 +5,10 @@
 # how much memory the emulated machine will have
 megs: 32
 
-# gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
-
-# display_library: textconfig
-magic_break: enabled=1
+gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
 
 # filename of ROM images
 romimage: file=$BXSHARE/BIOS-bochs-latest
-# romimage: file=$BXSHARE/bios.bin-1.13.0
 vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest.bin
 
 # what disk images will be used 
@@ -27,18 +23,16 @@ ata0-master: type=disk, path="bin/zonix.img", mode=flat, cylinders=8, heads=16, 
 boot: c
 
 # default config interface is textconfig.
-# config_interface: textconfig
-# config_interface: wx
+#config_interface: textconfig
+#config_interface: wx
 
 # display_library: x
 # other choices: win32 sdl wx carbon amigaos beos macintosh nogui rfb term svga
 
+# display_library: sdl2
+
 # where do we send log messages?
 log: bochsout.txt
-logprefix: %t [%i] %e
-debug: action=report
-info: action=report
-error: action=report
 
 # disable the mouse, since DLX is text only
 mouse: enabled=0

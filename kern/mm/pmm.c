@@ -1,5 +1,7 @@
 #include "pmm.h"
 
+#include "../arch/x86/e820.h"
+
 #define USED 100
 
 #define LOW_MEM 0x100000 // 0 ~ 0x100000 is Kernel
@@ -24,4 +26,6 @@ void pmm_init(long start_mem, long end_mem)
 	end_mem >>= 12;
 	while (end_mem-- > 0)
 		mem_map[i++] = 0;
+
+	e820_parse();
 }

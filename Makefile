@@ -101,13 +101,13 @@ make_dir = $(eval $(call do_make_dir))
 INCLUDE	+=  include  \
             kern/include
 
-KSRCDIR :=	kern         \
-            kern/arch    \
-            kern/cons    \
-			kern/trap    \
-			kern/drivers \
-			kern/sched   \
-			kern/mm
+KSRCDIR :=	kern          \
+            kern/arch/x86 \
+            kern/cons     \
+            kern/trap     \
+            kern/drivers  \
+            kern/sched    \
+            kern/mm
 
 
 CFLAGS	+= $(addprefix -I,$(INCLUDE))
@@ -161,8 +161,11 @@ debug-qemu: bin/zonix.img
 bochs:
 	bochs -q -f bochsrc.bxrc
 
+debug-bochs:
+	bochs -q -f bochsrc_debug.bxrc -dbg
+
 gdb: bin/zonix.img
-	$(TERMINAL) -e bochs -q -f bochsrc_debug.bxrc
+	$(TERMINAL) -e bochs -q -f bochsrc_gdb.bxrc
 	sleep 2
 	gdb -q -x tools/gdbinit
 

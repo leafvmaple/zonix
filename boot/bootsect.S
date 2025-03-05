@@ -18,15 +18,38 @@ _start:
     movb $INT_DISK_AH_LAB_READ, %ah                 # AH=0x42, LBA Mode
     movb $INT_DISK_DL_HDD, %dl                      # DL=0x80, Hard Disk Driver 0
     int  $INT_DISK
-	
+
+
 # Enable A20
 	call check_8042
 	movb $KBD_CMD_WO_PORT, %al
-    outb %al, $KBD_STATUS_REG                     # write data to 8042's P2 port
+    outb %al, $KBD_STATUS_REG                   # write data to 8042's P2 port
 
 	call check_8042
 	movb $KBD_A20_ENABLE, %al
     outb %al, $KBD_DATA_REG                     # set P2's A20 bit(the 1 bit) to 1
+
+	
+# Probe memory
+    movl $0, E820_MEM_CNT
+    xorl %ebx, %ebx
+    movl $E820_MEM_BASE, %edi
+    movl $E820_MEM_BASE, %esi
+start_probe:
+    movl $INT_ESI_AX_E820, %eax
+    movl $INT_ESI_DESC_SIZE, %ecx
+    movl $SMAP, %edx
+    int  $INT_ESI
+    jnc cont                               # If the CF bit of eflags is 0, it means there are still memory segments to be probed
+    movw $INT_ESI_ERROR_CODE, E820_MEM_CNT # Probe has a error, finish
+    jmp finish_probe
+cont:
+    addw $INT_ESI_DESC_SIZE, %di           # Set the starting address of the mapping address descriptor returned by the next BIOS
+    incl E820_MEM_CNT                      # Increment the member variable nr_map of struct e820map
+    cmpl $0, %ebx                          # If the ebx returned by INT0x15 is zero, it means the detection is over, otherwise continue to detect
+    jnz start_probe
+finish_probe:
+
 
 # Load 16bit GDT
     lgdt gdt48
@@ -70,7 +93,7 @@ _start:
     orl  $CR0_PE, %eax                              
     movl %eax   , %cr0
 
-	ljmp $KERNEL_CS, $0x0  # Set CS
+	ljmp $KERNEL_CS, $KERNEL_ENTRY  # Set CS
 
 check_8042:
     inb   $KBD_STATUS_REG, %al                    # Wait for not busy(8042 input buffer empty).
@@ -81,7 +104,7 @@ check_8042:
 .align 16
 // Disk Address Packet
 dap:
-    GEN_DAP(32, 0, 0, 1)
+    GEN_DAP(32, KERNEL_ENTRY, 0, 1)                # Load 32 sectors start form LAB1 to 0:KERNEL_ENTRY
 
 .p2align 2
 gdt16:

@@ -19,9 +19,12 @@
         "kdb.h": "c"
     },
     "cSpell.words": [
+        "addw",
         "CMOS",
+        "cmpl",
         "CRTC",
         "globl",
+        "KDATA",
         "KTEXT",
         "lgdt",
         "lidt",
@@ -31,7 +34,9 @@
         "movw",
         "outb",
         "pushl",
+        "SMAP",
         "testb",
+        "xorl",
         "xorw",
         "Zonix"
     ],
