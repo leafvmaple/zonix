@@ -4,5 +4,5 @@ target remote :1234
 # b kern_init
 # b time.c:36
 # b e820.c:6
-b print_digit
+b pmm_init
 c

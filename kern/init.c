@@ -22,7 +22,7 @@ int kern_init(void) {
 
     // module
     cons_init();
-    pmm_init(4 * 1024 * 1024, 16 * 1024 * 1024);
+    pmm_init();
     sched_init();
 
     intr_enable();
