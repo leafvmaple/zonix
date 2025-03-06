@@ -3,5 +3,5 @@ OUTPUT_ARCH(i386)
 ENTRY(kern_init)
 
 SECTIONS {
-	. = 0x0;
+	. = 0x1000;
 }
