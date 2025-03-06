@@ -158,10 +158,10 @@ debug-qemu: bin/zonix.img
 	sleep 2
 	$(TERMINAL) -e "gdb -q -x tools/gdbinit"
 
-bochs:
+bochs: bin/zonix.img
 	bochs -q -f bochsrc.bxrc
 
-debug-bochs:
+debug-bochs: bin/zonix.img
 	bochs -q -f bochsrc_debug.bxrc -dbg
 
 gdb: bin/zonix.img

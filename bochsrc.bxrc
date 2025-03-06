@@ -8,8 +8,8 @@ megs: 32
 # gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
 
 # filename of ROM images
-# romimage: file=$BXSHARE/BIOS-bochs-latest
-romimage: file=$BXSHARE/bios.bin
+romimage: file=$BXSHARE/BIOS-bochs-latest
+# romimage: file=$BXSHARE/bios.bin
 vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest.bin
 
 # what disk images will be used 

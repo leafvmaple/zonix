@@ -31,21 +31,20 @@ _start:
 
 	
 # Probe memory
-    movl $0, E820_MEM_CNT
+    movl $0, E820_MEM_BASE
     xorl %ebx, %ebx
-    movl $E820_MEM_BASE, %edi
-    movl $E820_MEM_BASE, %esi
+    movl $E820_MEM_DATA, %edi
 start_probe:
     movl $INT_ESI_AX_E820, %eax
     movl $INT_ESI_DESC_SIZE, %ecx
     movl $SMAP, %edx
     int  $INT_ESI
     jnc cont                               # If the CF bit of eflags is 0, it means there are still memory segments to be probed
-    movw $INT_ESI_ERROR_CODE, E820_MEM_CNT # Probe has a error, finish
+    movw $INT_ESI_ERROR_CODE, E820_MEM_BASE # Probe has a error, finish
     jmp finish_probe
 cont:
     addw $INT_ESI_DESC_SIZE, %di           # Set the starting address of the mapping address descriptor returned by the next BIOS
-    incl E820_MEM_CNT                      # Increment the member variable nr_map of struct e820map
+    incl E820_MEM_BASE                      # Increment the member variable nr_map of struct e820map
     cmpl $0, %ebx                          # If the ebx returned by INT0x15 is zero, it means the detection is over, otherwise continue to detect
     jnz start_probe
 finish_probe:

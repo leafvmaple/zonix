@@ -16,7 +16,8 @@
         "cons.h": "c",
         "pit.h": "c",
         "io.h": "c",
-        "kdb.h": "c"
+        "kdb.h": "c",
+        "math.h": "c"
     },
     "cSpell.words": [
         "addw",

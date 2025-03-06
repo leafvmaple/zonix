@@ -17,7 +17,7 @@ void trap(struct trap_frame *tf) {
         case IRQ_OFFSET + IRQ_TIMER:
             ticks++;
             if ((int)ticks % TICK_NUM == 0) {
-                cprintf("%d ticks\n", TICK_NUM);
+                // cprintf("%d ticks\n", TICK_NUM);
             }
             break;
         case IRQ_OFFSET + IRQ_KBD:

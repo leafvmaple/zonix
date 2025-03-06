@@ -57,5 +57,5 @@
 
 #define KERNEL_ENTRY 0x1000
 
-#define E820_MEM_CNT  0x8000
-#define E820_MEM_BASE 0x8004
+#define E820_MEM_BASE  0x8000
+#define E820_MEM_DATA 0x8004

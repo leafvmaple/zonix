@@ -12,7 +12,7 @@
 
 #define INT_ESI_AX_E820 0xE820
 
-#define INT_ESI_DESC_SIZE 24
+#define INT_ESI_DESC_SIZE 20
 #define INT_ESI_ERROR_CODE 0xFFFF
 
 #define GEN_DAP(sectors,offset,segment,lba) \
