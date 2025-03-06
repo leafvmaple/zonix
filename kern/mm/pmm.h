@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include "io.h"
 
 #define PG_SIZE 4096
 
@@ -16,6 +17,6 @@ struct Page {
     uintptr_t pra_vaddr;         // used for pra (page replace algorithm)
 };
 
-#define SetPageReserved(page) set_bit(PG_RESERVED, &((page)->flags))
+#define SET_PAGE_RESERVED(page) set_bit(PG_RESERVED, &((page)->flags))
 
 extern void pmm_init(long start, long end);
