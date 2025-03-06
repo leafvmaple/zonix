@@ -19,3 +19,14 @@
         : "a"(__low), "d"(__high));                      \
     __mod;                                               \
 })
+
+#define ROUND_DOWN(a, n) ({        \
+    uint32_t __a = (uint32_t)(a);     \
+    (typeof(a))(__a - __a % (n)); \
+})
+
+/* Round up to the nearest multiple of n */
+#define ROUND_UP(a, n) ({                                \
+    uint32_t __n = (uint32_t)(n);                           \
+    (typeof(a))(ROUND_DOWN((uint32_t)(a) + __n - 1, __n)); \
+})

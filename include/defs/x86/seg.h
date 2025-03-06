@@ -57,5 +57,10 @@
 
 #define KERNEL_ENTRY 0x1000
 
-#define E820_MEM_BASE  0x8000
+#define E820_MEM_BASE 0x8000
 #define E820_MEM_DATA 0x8004
+
+#define E820_RAM 1
+#define E820_RESERVED 2
+#define E820_ACPI 3
+#define E820_NVS 4

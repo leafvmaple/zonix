@@ -1,6 +1,7 @@
 #include "pmm.h"
 
 #include "../arch/x86/e820.h"
+#include "math.h"
 
 #define USED 100
 
@@ -9,7 +10,13 @@
 #define PAGING_PAGES (PAGING_MEMORY >> 12)
 #define MAP_NR(addr) (((addr) - LOW_MEM) >> 12)
 
+#define PAG_NUM(addr) ((addr) >> 12)
+
 static unsigned char mem_map [ PAGING_PAGES ] = {0, };
+
+struct Page *pages = 0;
+// amount of physical memory (in pages)
+uint32_t npage = 0;
 
 void pmm_init(long start_mem, long end_mem)
 {
@@ -27,5 +34,14 @@ void pmm_init(long start_mem, long end_mem)
 	while (end_mem-- > 0)
 		mem_map[i++] = 0;
 
-	e820_parse();
+	uint64_t max_pa = 0;
+
+	e820_parse(&max_pa);
+
+	extern uint8_t KERNEL_END[];
+
+	npage = PAG_NUM(max_pa);
+	pages = (struct Page *)ROUND_UP((void *)KERNEL_END, PG_SIZE);
+
+	
 }
