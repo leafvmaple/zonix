@@ -25,6 +25,13 @@ int print_num(va_list* args, int base, int lflag) {
     print_digit(num, base);
 }
 
+int print_str(va_list* args) {
+    char* s = va_arg(*args, char*);
+    while (*s) {
+        cons_putc(*s++);
+    }
+}
+
 int cprintf(const char *fmt, ...) {
     char c;
     int status = FMT_NONE, lflag = 0;
@@ -52,6 +59,10 @@ int cprintf(const char *fmt, ...) {
                 break;
             case 'd':
                 print_num(&args, 10, lflag);
+                status = FMT_NONE;
+                break;
+            case 's':
+                print_str(&args);
                 status = FMT_NONE;
                 break;
             default:

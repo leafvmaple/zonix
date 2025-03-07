@@ -18,7 +18,11 @@
         "io.h": "c",
         "kdb.h": "c",
         "math.h": "c",
-        "seg.h": "c"
+        "seg.h": "c",
+        "simple_pmm.h": "c",
+        "cstring": "c",
+        "xmemory": "c",
+        "xutility": "c"
     },
     "cSpell.words": [
         "ACPI",
