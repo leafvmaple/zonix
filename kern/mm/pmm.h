@@ -25,11 +25,18 @@ typedef struct {
     size_t (*nr_free_pages)();
 } pmm_manager;
 
+#define le2page(le, member) \
+    to_struct((le), Page, member)
+
 typedef struct {
     list_entry_t free_list;  // the list header
     unsigned int nr_free;    // # of free pages in this free list
 } free_area_t;
 
-#define SET_PAGE_RESERVED(page) set_bit(PG_RESERVED, &((page)->flags))
+#define SET_BIT(page, bit) ((page)->flags |= (1 << (bit)))
+#define CLEAR_BIT(page, bit) ((page)->flags &= ~(1 << (bit)))
+
+#define SET_PAGE_RESERVED(page) (SET_BIT((page), PG_RESERVED))
+#define CLEAR_PAGE_RESERVED(page) (CLEAR_BIT((page), PG_RESERVED))
 
 extern void pmm_init();

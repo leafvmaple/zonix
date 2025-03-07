@@ -43,13 +43,6 @@ static inline uint8_t inb_p(uint16_t port) {
     return data;
 }
 
-static inline void
-set_bit(int nr, volatile void *addr) {
-    asm volatile("btsl %1, %0"
-                 : "=m"(*(volatile long *)addr)
-                 : "Ir"(nr));
-}
-
 static inline void sti(void) {
     asm volatile("sti");
 }

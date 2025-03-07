@@ -22,7 +22,14 @@
         "simple_pmm.h": "c",
         "cstring": "c",
         "xmemory": "c",
-        "xutility": "c"
+        "xutility": "c",
+        "compare": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "xtr1common": "c",
+        "pmm.h": "c",
+        "list.h": "c"
     },
     "cSpell.words": [
         "ACPI",

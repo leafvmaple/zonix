@@ -13,3 +13,9 @@ typedef int32_t intptr_t;
 typedef uint32_t uintptr_t;
 
 typedef uint32_t size_t;
+
+#define offset_of(type, member) \
+    ((size_t)(&((type *)0)->member))
+
+#define to_struct(ptr, type, member) \
+    ((type *)((char *)(ptr) - offset_of(type, member)))
