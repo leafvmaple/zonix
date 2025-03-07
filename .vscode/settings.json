@@ -17,7 +17,8 @@
         "pit.h": "c",
         "io.h": "c",
         "kdb.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "seg.h": "c"
     },
     "cSpell.words": [
         "ACPI",

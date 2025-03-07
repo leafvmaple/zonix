@@ -23,6 +23,8 @@ _main:
     movw %ax, %gs                                   # -> GS
     movw %ax, %ss                                   # -> SS: Stack Segment
 
+    movl STACK_START, %esp
+
     call kern_init
     
     # If kern_init returns (it shouldn't), loop.

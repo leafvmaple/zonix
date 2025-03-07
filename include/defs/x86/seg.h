@@ -57,10 +57,20 @@
 
 #define KERNEL_ENTRY 0x1000
 
-#define E820_MEM_BASE 0x8000
-#define E820_MEM_DATA 0x8004
+#define E820_MEM_BASE 0x400
+#define E820_MEM_DATA (E820_MEM_BASE + 4)
 
 #define E820_RAM 1
 #define E820_RESERVED 2
 #define E820_ACPI 3
 #define E820_NVS 4
+
+/* *
+      DISK2_END -----------> +---------------------------------+ 0x01FF0000   3GB
+      DISK2_BEGIN ---------> +---------------------------------+ 0x00100000
+      DISK1_END -----------> +---------------------------------+ 0x0009F000
+      KERNEL_ENTRY---------> +---------------------------------+ 0x00001000
+*     E820_MEM_BASE -------> +---------------------------------+ 0x00000400
+*                            |              BIOS IVT           | --/--
+*     DISK1_BEGIN ---------> +---------------------------------+ 0x00000000
+ * */

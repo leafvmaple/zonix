@@ -9,6 +9,10 @@
 
 #define PAG_NUM(addr) ((addr) >> 12)
 
+long user_stack [ PG_SIZE >> 2 ] ;
+
+long* STACK_START = &user_stack [PG_SIZE >> 2];
+
 const struct pmm_manager *pmm_mgr;
 struct Page *pages = 0;
 uint32_t npage = 0;
