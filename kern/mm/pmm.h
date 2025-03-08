@@ -4,8 +4,6 @@
 #include "io.h"
 #include "list.h"
 
-#define PG_SIZE 4096
-
 #define PG_RESERVED 0
 #define PG_PROPERTY 1 
 

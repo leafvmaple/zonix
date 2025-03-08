@@ -3,6 +3,7 @@
 #include "../arch/x86/e820.h"
 #include "math.h"
 
+#include "defs/x86/pg.h"
 #include "defs/x86/seg.h"
 
 #include "simple_pmm.h"

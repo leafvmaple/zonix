@@ -1,3 +1,4 @@
+#include "defs/x86/pg.h"
 #include "defs/x86/seg.h"
 
 .globl __gdt, __idt
@@ -15,7 +16,8 @@ _main:
     cld                                             # String operations increment
 
     call _load_gdt
-    lidt _idtdesc
+    call _load_idt
+    # call _load_pgdir
 
     movw %ax, %ds                                   # -> DS: Data Segment
     movw %ax, %es                                   # -> ES: Extra Segment
@@ -33,6 +35,10 @@ _spin:
 
 _load_gdt:
     lgdt _gdtdesc
+    ret
+
+_load_idt:
+    lidt _idtdesc
     ret
 
 .align 8
@@ -57,3 +63,4 @@ _gdtdesc:
 _idtdesc:
     .word __idt_end - __idt - 1				# sizeof(_idt) - 1, idt contains 256 entries
     .long __idt
+

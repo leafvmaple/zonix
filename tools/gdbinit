@@ -5,5 +5,5 @@ target remote :1234
 # b time.c:36
 # b e820.c:6
 # b pmm.c:51
-b print_str
+b cga_scrup
 c

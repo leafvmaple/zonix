@@ -14,8 +14,17 @@
 #define CRT_ROWS        25
 #define CRT_COLS        80
 
+#define CRT_ERASE_CHAR  0x0720;
+
 uint16_t *crt_buf = (uint16_t *)CGA_BUF;
 static uint16_t crt_pos = 0;
+
+static void cur_update() {
+    outb(CGA_IDX_REG, CRTC_CURSOR_HIGH);
+    outb(CGA_DATA_REG, crt_pos >> 8);
+    outb(CGA_IDX_REG, CRTC_CURSOR_LOW);
+    outb(CGA_DATA_REG, crt_pos);
+}
 
 void cga_init() {
     outb(CGA_IDX_REG, CRTC_CURSOR_HIGH);
@@ -36,6 +45,8 @@ void cga_putc(int c) {
         break;
     case '\n':
         crt_pos += CRT_COLS;
+        if (crt_pos / CRT_COLS >= CRT_ROWS)
+            cga_scrup();
     case '\r':
         crt_pos -= (crt_pos % CRT_COLS);
         break;
@@ -44,8 +55,22 @@ void cga_putc(int c) {
         break;
     }
 
-    outb(CGA_IDX_REG, CRTC_CURSOR_HIGH);
-    outb(CGA_DATA_REG, crt_pos >> 8);
-    outb(CGA_IDX_REG, CRTC_CURSOR_LOW);
-    outb(CGA_DATA_REG, crt_pos);
+    cur_update();
+}
+
+void cga_scrup() {
+    uint16_t *source = crt_buf + CRT_COLS;
+    int count = (CRT_ROWS - 1) * CRT_COLS;
+
+    for (int i = 0; i < count; i++)
+        crt_buf[i] = source[i];
+
+    // 使用 `memset` 模拟 `rep stosw`
+    uint16_t *clear_start = crt_buf + CRT_COLS * (CRT_ROWS - 1);
+    for (int i = 0; i < CRT_COLS; i++) {
+        clear_start[i] = CRT_ERASE_CHAR;
+    }
+
+    crt_pos -= CRT_COLS;
+    cur_update();
 }
