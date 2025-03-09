@@ -3,7 +3,7 @@ OUTPUT_ARCH(i386)
 ENTRY(kern_init)
 
 SECTIONS {
-	. = 0x1000;
+	. = 0x0;
 
 	.text : {
 		*(.text .stub .text.* .gnu.linkonce.t.*)

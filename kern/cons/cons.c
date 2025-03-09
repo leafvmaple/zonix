@@ -5,13 +5,14 @@
 
 #include "defs/drivers/i8259.h"
 #include "defs/drivers/i8042.h"
+#include "defs/x86/seg.h"
 #include "io.h"
 
 
 void cons_init() {
     cga_init();
     kbd_init();
-    cprintf("Zonix OS is Loading...\n");
+    cprintf("Zonix OS is Loading in [0x%x]...\n", KERNEL_ENTRY);
 }
 
 char cons_getc(void) {

@@ -12,23 +12,6 @@ _start:
     movw %ax, %ds                                   # -> Data Segment
     movw %ax, %es                                   # -> Extra Segment
     movw %ax, %ss                                   # -> Stack Segment
-
-# read track from disk sector [1, 33)
-    mov  $dap, %si
-    movb $INT_DISK_AH_LAB_READ, %ah                 # AH=0x42, LBA Mode
-    movb $INT_DISK_DL_HDD, %dl                      # DL=0x80, Hard Disk Driver 0
-    int  $INT_DISK
-
-
-# Enable A20
-	call check_8042
-	movb $KBD_CMD_WO_PORT, %al
-    outb %al, $KBD_STATUS_REG                   # write data to 8042's P2 port
-
-	call check_8042
-	movb $KBD_A20_ENABLE, %al
-    outb %al, $KBD_DATA_REG                     # set P2's A20 bit(the 1 bit) to 1
-
 	
 # Probe memory
     movl $0, E820_MEM_BASE
@@ -49,6 +32,21 @@ cont:
     jnz start_probe
 finish_probe:
 
+# read track from disk sector [1, 33)
+    mov  $dap, %si
+    movb $INT_DISK_AH_LAB_READ, %ah                 # AH=0x42, LBA Mode
+    movb $INT_DISK_DL_HDD, %dl                      # DL=0x80, Hard Disk Driver 0
+    int  $INT_DISK
+
+
+# Enable A20
+	call check_8042
+	movb $KBD_CMD_WO_PORT, %al
+    outb %al, $KBD_STATUS_REG                   # write data to 8042's P2 port
+
+	call check_8042
+	movb $KBD_A20_ENABLE, %al
+    outb %al, $KBD_DATA_REG                     # set P2's A20 bit(the 1 bit) to 1
 
 # Load 16bit GDT
     lgdt gdt48

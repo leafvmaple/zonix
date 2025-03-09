@@ -50,7 +50,7 @@ static void pmm_memmap_init(uint64_t addr, uint64_t size, uint32_t type, void *a
 static void page_init() {
 	uint64_t max_pa = 0;
 
-	cprintf("e820map:\n");
+	cprintf("e820map: [0x%x]\n", E820_MEM_BASE);
 	e820_traverse(get_max_pa, (void*)&max_pa);
 
 	extern uint8_t KERNEL_END[];
