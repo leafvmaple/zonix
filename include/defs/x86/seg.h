@@ -55,7 +55,8 @@
 
 // Memory Layout
 
-#define KERNEL_BASE 0x10000
+#define KERNEL_BASE 0x100000
+#define KERNEL_HEADER 0x10000
 
 #define E820_MEM_BASE 0x8000
 #define E820_MEM_DATA (E820_MEM_BASE + 4)

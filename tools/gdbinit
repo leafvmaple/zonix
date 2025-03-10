@@ -6,5 +6,5 @@ target remote :1234
 # b e820.c:6
 # b pmm.c:51
 # b head.S:8
-b _main
+b pmm.c:65
 c

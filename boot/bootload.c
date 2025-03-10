@@ -37,7 +37,7 @@ static void readseg(uintptr_t va, uint32_t count, uint32_t offset) {
 }
 
 void bootmain(void) {
-    elfhdr* hdr = (elfhdr *)KERNEL_BASE;
+    elfhdr* hdr = (elfhdr *)KERNEL_HEADER;
     readseg((uintptr_t)hdr, SECTSIZE * 8, 0);
 
     if (hdr->e_magic != ELF_MAGIC) {

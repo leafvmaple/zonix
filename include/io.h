@@ -8,20 +8,29 @@ static inline void insl(uint32_t port, void *addr, int cnt) __attribute__((alway
 static inline void outb(uint16_t port, uint8_t data) __attribute__((always_inline));
 static inline void outw(uint16_t port, uint16_t data) __attribute__((always_inline));
 
+static inline void lcr0(uintptr_t cr0) __attribute__((always_inline));
+static inline void lcr3(uintptr_t cr3) __attribute__((always_inline));
+
 static inline void outb(uint16_t port, uint8_t data) {
     asm volatile ("outb %0, %1" :: "a"(data), "d"(port));
 }
 
-static inline void outw(uint16_t port, uint16_t data) {
-    asm volatile("outw %0, %1" ::"a"(data), "d"(port)
-                 : "memory");
-}
-
-// Read 1 Byte from port [port]
 static inline uint8_t inb(uint16_t port) {
     uint8_t data;
     asm volatile ("inb %1, %0" : "=a" (data) : "d" (port));
     return data;
+}
+
+static inline void outw(uint16_t port, uint16_t data) {
+    asm volatile("outw %0, %1" ::"a"(data), "d"(port) : "memory");
+}
+
+static inline void lcr0(uintptr_t cr0) {
+    asm volatile("mov %0, %%cr0" ::"r"(cr0) : "memory");
+}
+
+static inline void lcr3(uintptr_t cr3) {
+    asm volatile("mov %0, %%cr3" ::"r"(cr3) : "memory");
 }
 
 // Read [cnt] Bytes to adress [addr] from port [port]

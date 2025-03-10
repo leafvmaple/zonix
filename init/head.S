@@ -1,13 +1,13 @@
 #include "defs/x86/pg.h"
 #include "defs/x86/seg.h"
 
-.globl _main, __gdt, __idt
+.globl _main, __gdt, __idt, __boot_pgdir
 
 .code32                                             # Assemble for 32-bit mode
 _main:
     call _load_gdt
     call _load_idt
-    # call _load_pgdir
+    call _load_pgdir
 
     movl STACK_START, %esp
 
@@ -23,6 +23,17 @@ _load_gdt:
 
 _load_idt:
     lidt _idtdesc
+    ret
+
+_load_pgdir:
+    movl __boot_pgdir, %eax
+    movl %eax, %cr3
+
+    movl %cr0, %eax
+    orl $(CR0_PE | CR0_PG | CR0_AM | CR0_WP | CR0_NE | CR0_TS | CR0_EM | CR0_MP), %eax
+    andl $~(CR0_TS | CR0_EM), %eax
+    movl %eax, %cr0
+
     ret
 
 .align 8
@@ -50,14 +61,16 @@ _idtdesc:
 
 .align PG_SIZE
 __boot_pgdir:
-.globl __boot_pgdir
     # map va 0 ~ 4M to pa 0 ~ 4M (temporary)
     .long __boot_pt1 + (PTE_P | PTE_U | PTE_W)
+    .long __boot_pt1 + PG_SIZE + (PTE_P | PTE_U | PTE_W)
+    .long __boot_pt1 + PG_SIZE * 2 + (PTE_P | PTE_U | PTE_W)
+    .long __boot_pt1 + PG_SIZE * 3 + (PTE_P | PTE_U | PTE_W)
     .space PG_SIZE - (. - __boot_pgdir)
 
 .set i, 0
 __boot_pt1:
-.rept 1024
+.rept 4096
     .long i * PG_SIZE + (PTE_P | PTE_W)
     .set i, i + 1
 .endr
