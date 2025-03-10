@@ -1,29 +1,13 @@
 #include "defs/x86/pg.h"
 #include "defs/x86/seg.h"
 
-.globl __gdt, __idt
+.globl _main, __gdt, __idt
 
 .code32                                             # Assemble for 32-bit mode
 _main:
-    movw $KERNEL_DS, %ax                            # Our data segment selector
-    movw %ax, %ds                                   # -> DS: Data Segment
-    movw %ax, %es                                   # -> ES: Extra Segment
-    movw %ax, %fs                                   # -> FS
-    movw %ax, %gs                                   # -> GS
-    movw %ax, %ss                                   # -> SS: Stack Segment
-
-    cli                                             # Disable interrupts
-    cld                                             # String operations increment
-
     call _load_gdt
     call _load_idt
     # call _load_pgdir
-
-    movw %ax, %ds                                   # -> DS: Data Segment
-    movw %ax, %es                                   # -> ES: Extra Segment
-    movw %ax, %fs                                   # -> FS
-    movw %ax, %gs                                   # -> GS
-    movw %ax, %ss                                   # -> SS: Stack Segment
 
     movl STACK_START, %esp
 
@@ -64,3 +48,16 @@ _idtdesc:
     .word __idt_end - __idt - 1				# sizeof(_idt) - 1, idt contains 256 entries
     .long __idt
 
+.align PG_SIZE
+__boot_pgdir:
+.globl __boot_pgdir
+    # map va 0 ~ 4M to pa 0 ~ 4M (temporary)
+    .long __boot_pt1 + (PTE_P | PTE_U | PTE_W)
+    .space PG_SIZE - (. - __boot_pgdir)
+
+.set i, 0
+__boot_pt1:
+.rept 1024
+    .long i * PG_SIZE + (PTE_P | PTE_W)
+    .set i, i + 1
+.endr

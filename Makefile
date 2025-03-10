@@ -1,7 +1,7 @@
 .SECONDEXPANSION:
 
 CC		:= gcc
-CFLAGS	:= -g -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc -fno-stack-protector
+CFLAGS	:= -g -fno-builtin -Wall -ggdb -O0 -m32 -gstabs -nostdinc -fno-stack-protector -fno-PIC -gdwarf-2
 
 HOSTCC		:= gcc
 HOSTCFLAGS	:= -g -Wall -O2
@@ -128,13 +128,14 @@ $(kernel): $(KOBJS) tools/kernel.ld | $$(dir $$@)
 	$(DASM) -b 32 $(call tobin,kernel) > obj/kernel.disasm
 
 bootfiles = $(call listf_cc,boot)
-$(eval $(call compiles,$(bootfiles),$(CC),$(CFLAGS) -Os -nostdinc))
+$(eval $(call compiles,$(bootfiles),$(CC),$(CFLAGS) -Os))
 
 boot = $(call totarget,bootblock)
 BOBJS = $(call toobj,$(bootfiles))
 
 $(boot): $(BOBJS) | $$(dir $$@)
-	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x7c00 -o $@ $^
+#	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x7c00 -o $@ $^
+	$(LD) $(LDFLAGS) -T tools/boot.ld -o $@ $^
 	$(OBJDUMP) -S $@ > obj/bootblock.asm
 	$(OBJCOPY) -S -O binary $@ $(call tobin,bootblock)
 	$(DASM) -b 16 $(call tobin,bootblock) > obj/bootblock.disasm
@@ -144,11 +145,13 @@ $(call make_dir)
 bin/zonix.img: bin/bootblock bin/kernel | $$(dir $$@)
 	dd if=/dev/zero of=$@ count=8064
 	dd if=bin/bootblock.bin of=$@ conv=notrunc
-	dd if=bin/kernel.bin of=$@ seek=1 conv=notrunc
+	dd if=bin/kernel of=$@ seek=1 conv=notrunc
 
 TARGETS: bin/bootblock bin/kernel bin/zonix.img
 
 .DEFAULT_GOAL := TARGETS
+
+boot: bin/bootblock
 
 qemu: bin/zonix.img
 	$(QEMU) -S -no-reboot -monitor stdio -hda $<

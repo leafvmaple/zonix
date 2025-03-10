@@ -12,7 +12,7 @@
 void cons_init() {
     cga_init();
     kbd_init();
-    cprintf("Zonix OS is Loading in [0x%x]...\n", KERNEL_ENTRY);
+    cprintf("Zonix OS is Loading in [0x%x]...\n", KERNEL_BASE);
 }
 
 char cons_getc(void) {

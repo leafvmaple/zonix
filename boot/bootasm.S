@@ -7,6 +7,8 @@
 .globl _start
 _start:
 .code16                                             # Assemble for 16-bit mode
+    cli                                             # Disable interrupts
+    cld                                             # String operations increment
     # Set up the important data segment registers (DS, ES, SS).
     xorw %ax, %ax                                   # Segment number zero
     movw %ax, %ds                                   # -> Data Segment
@@ -16,7 +18,7 @@ _start:
 # Probe memory
     movl $0, E820_MEM_BASE
     xorl %ebx, %ebx
-    movl $E820_MEM_DATA, %edi
+    movw $E820_MEM_DATA, %di
 start_probe:
     movl $INT_ESI_AX_E820, %eax
     movl $INT_ESI_DESC_SIZE, %ecx
@@ -31,12 +33,6 @@ cont:
     cmpl $0, %ebx                          # If the ebx returned by INT0x15 is zero, it means the detection is over, otherwise continue to detect
     jnz start_probe
 finish_probe:
-
-# read track from disk sector [1, 33)
-    mov  $dap, %si
-    movb $INT_DISK_AH_LAB_READ, %ah                 # AH=0x42, LBA Mode
-    movb $INT_DISK_DL_HDD, %dl                      # DL=0x80, Hard Disk Driver 0
-    int  $INT_DISK
 
 
 # Enable A20
@@ -90,7 +86,7 @@ finish_probe:
     orl  $CR0_PE, %eax                              
     movl %eax   , %cr0
 
-	ljmp $KERNEL_CS, $KERNEL_ENTRY  # Set CS
+	ljmp $KERNEL_CS, $protected  # Set CS
 
 check_8042:
     inb   $KBD_STATUS_REG, %al                    # Wait for not busy(8042 input buffer empty).
@@ -98,20 +94,24 @@ check_8042:
     jnz   check_8042
 	ret
 
-.align 16
-// Disk Address Packet
-dap:
-    GEN_DAP(32, KERNEL_ENTRY, 0, 1)                # Load 32 sectors start form LAB1 to 0:KERNEL_ENTRY
+.code32
+protected:
+    movw $KERNEL_DS, %ax                            # Our data segment selector
+    movw %ax, %ds                                   # -> DS: Data Segment
+    movw %ax, %es                                   # -> ES: Extra Segment
+    movw %ax, %fs                                   # -> FS
+    movw %ax, %gs                                   # -> GS
+    movw %ax, %ss                                   # -> SS: Stack Segment
+
+    call bootmain
 
 .p2align 2
 gdt16:
     GEN_SEG_NULL                                    # null seg
     GEN_SEG_DESC(STA_X|STA_R, 0x0, 0x7fffff)        # code seg for bootloader and kernel
     GEN_SEG_DESC(STA_W, 0x0, 0x7fffff)              # data seg for bootloader and kernel
+__gdt16_end:
 
 gdt48:
-    .word 0x800                                     # sizeof(gdt) - 1
+    .word 0x800	                                    # sizeof(gdt) - 1
     .long gdt16                                     # address gdt
-
-.org 510
-    .word 0xAA55

@@ -33,6 +33,10 @@ boot: c
 
 # where do we send log messages?
 log: bochsout.txt
+logprefix: %t [%i] %e
+debug: action=report
+info: action=report
+error: action=report
 
 # disable the mouse, since DLX is text only
 mouse: enabled=0
