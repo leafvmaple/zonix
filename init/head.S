@@ -1,5 +1,6 @@
 #include "defs/x86/pg.h"
 #include "defs/x86/seg.h"
+#include "defs/x86/cr.h"
 
 .globl _main, __gdt, __idt, __boot_pgdir
 
