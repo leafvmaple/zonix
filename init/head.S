@@ -27,12 +27,11 @@ _load_idt:
     ret
 
 _load_pgdir:
-    movl __boot_pgdir, %eax
+    movl $__boot_pgdir, %eax
     movl %eax, %cr3
 
     movl %cr0, %eax
-    orl $(CR0_PE | CR0_PG | CR0_AM | CR0_WP | CR0_NE | CR0_TS | CR0_EM | CR0_MP), %eax
-    andl $~(CR0_TS | CR0_EM), %eax
+    orl $CR0_PG, %eax
     movl %eax, %cr0
 
     ret
@@ -64,14 +63,11 @@ _idtdesc:
 __boot_pgdir:
     # map va 0 ~ 4M to pa 0 ~ 4M (temporary)
     .long __boot_pt1 + (PTE_P | PTE_U | PTE_W)
-    .long __boot_pt1 + PG_SIZE + (PTE_P | PTE_U | PTE_W)
-    .long __boot_pt1 + PG_SIZE * 2 + (PTE_P | PTE_U | PTE_W)
-    .long __boot_pt1 + PG_SIZE * 3 + (PTE_P | PTE_U | PTE_W)
     .space PG_SIZE - (. - __boot_pgdir)
 
 .set i, 0
 __boot_pt1:
-.rept 4096
+.rept 1024
     .long i * PG_SIZE + (PTE_P | PTE_W)
     .set i, i + 1
 .endr
