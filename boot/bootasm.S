@@ -113,5 +113,5 @@ gdt16:
 __gdt16_end:
 
 gdt48:
-    .word 0x800	                                    # sizeof(gdt) - 1
+    .word __gdt16_end - gdt16 - 1	                # sizeof(gdt) - 1
     .long gdt16                                     # address gdt
