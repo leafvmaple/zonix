@@ -1,4 +1,5 @@
 #include "defs/x86/seg.h"
+#include "defs/x86/cr.h"
 #include "elf.h"
 #include "io.h"
 

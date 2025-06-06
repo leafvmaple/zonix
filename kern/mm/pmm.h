@@ -7,6 +7,9 @@
 #define PG_RESERVED 0
 #define PG_PROPERTY 1 
 
+typedef uintptr_t pte_t;
+typedef uintptr_t pde_t;
+
 typedef struct Page {
     int ref;
     uint32_t flags;
