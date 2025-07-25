@@ -19,11 +19,11 @@ _spin:
     jmp _spin
 
 _load_gdt:
-    lgdt _gdtdesc
+    lgdt __gdtdesc
     ret
 
 _load_idt:
-    lidt _idtdesc
+    lidt __idtdesc
     ret
 
 _load_pgdir:
@@ -51,11 +51,11 @@ __idt:
 __idt_end:
 
 .align 2
-_gdtdesc:
+__gdtdesc:
     .word __gdt_end - __gdt - 1				# sizeof(gdt) - 1
     .long __gdt
 
-_idtdesc:
+__idtdesc:
     .word __idt_end - __idt - 1				# sizeof(_idt) - 1, idt contains 256 entries
     .long __idt
 
