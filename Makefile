@@ -154,10 +154,10 @@ TARGETS: bin/bootblock bin/kernel bin/zonix.img
 boot: bin/bootblock
 
 qemu: bin/zonix.img
-	$(QEMU) -S -no-reboot -monitor stdio -hda $<
+	$(QEMU) -S -no-reboot -monitor stdio -drive file=$<,format=raw
 
 debug-qemu: bin/zonix.img
-	$(QEMU) -S -s -parallel stdio -hda $< -serial null &
+	$(QEMU) -S -s -parallel stdio  -drive file=$<,format=raw -serial null &
 	sleep 2
 	$(TERMINAL) -e "gdb -q -x tools/gdbinit"
 
