@@ -23,7 +23,7 @@ long user_stack [ PG_SIZE >> 2 ] ;
 long* STACK_START = &user_stack [PG_SIZE >> 2];
 
 const pmm_manager* pmm_mgr;
-Page *pages = 0;
+Page *pages = 0;  // start of memory pages
 uint32_t npage = 0;
 
 static void get_max_pa(uint64_t addr, uint64_t size, uint32_t type, void *arg) {
@@ -53,7 +53,6 @@ static void pmm_memmap_init(uint64_t addr, uint64_t size, uint32_t type, void *a
 		}
 	}
 }
-
 
 struct Page* pages_alloc(size_t n) {
 	Page* pages = 0;

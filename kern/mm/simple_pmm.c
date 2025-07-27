@@ -35,7 +35,7 @@ static Page* alloc(size_t n) {
     if (page) {
         if (page->property > n) {
             Page *p = page + n;
-            p->property = page->property - n;
+            p->property -= n;
             SET_PAGE_RESERVED(p);
             list_add(le, &(p->page_link));
         }
@@ -43,9 +43,23 @@ static Page* alloc(size_t n) {
         _free.nr_free -= n;
         CLEAR_PAGE_RESERVED(page);
     }
+    return page;
 }
 
 static void free(Page *base, size_t n) {
+    list_entry_t *le = &_free.free_list;
+    Page *page = 0;
+    while ((le = list_next(le)) != &_free.free_list) {
+        Page *p = le2page(le, page_link);
+        if (p + p->property <= base) {
+            list_add(le, &(base->page_link));
+            break;
+        }
+    }
+    // TODO: merge free pages
+    base->property = n;
+    SET_PAGE_RESERVED(base);
+    _free.nr_free += n;
 }
 
 static size_t nr_free_pages() {
