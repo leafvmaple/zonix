@@ -31,7 +31,8 @@
         "pmm.h": "c",
         "list.h": "c",
         "elf.h": "c",
-        "stdarg.h": "c"
+        "cstdlib": "c",
+        "assert.h": "c"
     },
     "cSpell.words": [
         "ACPI",

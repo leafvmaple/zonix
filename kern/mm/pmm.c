@@ -1,4 +1,7 @@
 #include "pmm.h"
+#include "mmu.h"
+#include "memory.h"
+#include "../debug/assert.h"
 
 #include "../arch/x86/e820.h"
 #include "math.h"
@@ -25,6 +28,10 @@ long* STACK_START = &user_stack [PG_SIZE >> 2];
 const pmm_manager* pmm_mgr;
 Page *pages = 0;  // start of memory pages
 uint32_t npage = 0;
+
+static inline uintptr_t page2pa(Page *page) {
+    return (page - pages) << PG_SHIFT;
+}
 
 static void get_max_pa(uint64_t addr, uint64_t size, uint32_t type, void *arg) {
 	cprintf("  memory: %lx, [%lx, %lx), type = %d.\n", size, addr, addr + size - 1, type);
@@ -80,6 +87,33 @@ void pages_free(Page* base, size_t n) {
 	}
 }
 
+pte_t* get_pte(pde_t* pgdir, uintptr_t la, int create) {
+    pde_t* pdep = pgdir + PDX(la);
+    if (!(*pdep & PTE_P)) {
+        Page* page;
+        if (!create || (page = pages_alloc(1)) == NULL) {
+            return NULL;
+        }
+        page->ref = 1;
+
+        pde_t pa = page2pa(page);
+        memset(pa, 0, PG_SIZE);
+        *pdep = pa | PTE_USER;
+    }
+    return (pte_t*)PDE_ADDR(*pdep) + PTX(la);
+}
+
+static void pte_init(pde_t* pgdir, uintptr_t la, size_t size, uintptr_t pa, uint32_t perm) {
+	size_t n = ROUND_UP(size, PG_SIZE) / PG_SIZE;
+    la = ROUND_DOWN(la, PG_SIZE);
+    pa = ROUND_DOWN(pa, PG_SIZE);
+    for (; n > 0; n--, la += PG_SIZE, pa += PG_SIZE) {
+        pte_t* ptep = get_pte(pgdir, la, 1);
+        assert(ptep);
+        *ptep = pa | PTE_P | perm;
+    }
+}
+
 static void page_init() {
 	uint64_t max_pa = 0;
 
@@ -100,8 +134,11 @@ static void page_init() {
 	uintptr_t valid_mem = pages + npage;
 	e820_traverse(pmm_memmap_init, (void*)&valid_mem);
 
+	pte_init(boot_pgdir, KERNEL_BASE, KMEM_SIZE, 0, PTE_W);
+
 	pmm_mgr->check();
 }
+
 
 void pmm_init() {
 	pmm_mgr_init();

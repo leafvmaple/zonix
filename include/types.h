@@ -19,3 +19,7 @@ typedef uint32_t size_t;
 
 #define to_struct(ptr, type, member) \
     ((type *)((char *)(ptr) - offset_of(type, member)))
+
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
