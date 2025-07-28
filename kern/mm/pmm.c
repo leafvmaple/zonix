@@ -14,7 +14,7 @@
 #define PAG_NUM(addr) ((addr) >> 12)
 
 extern pde_t __boot_pgdir;
-pde_t *boot_pgdir = &__boot_pgdir;
+pde_t* boot_pgdir = &__boot_pgdir;
 
 uintptr_t boot_cr3;
 
@@ -99,6 +99,8 @@ static void page_init() {
 	
 	uintptr_t valid_mem = pages + npage;
 	e820_traverse(pmm_memmap_init, (void*)&valid_mem);
+
+	pmm_mgr->check();
 }
 
 void pmm_init() {

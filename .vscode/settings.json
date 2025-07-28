@@ -30,7 +30,8 @@
         "xtr1common": "c",
         "pmm.h": "c",
         "list.h": "c",
-        "elf.h": "c"
+        "elf.h": "c",
+        "stdarg.h": "c"
     },
     "cSpell.words": [
         "ACPI",

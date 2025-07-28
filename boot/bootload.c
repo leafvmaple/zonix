@@ -30,7 +30,7 @@ static void readseg(uintptr_t va, uint32_t count, uint32_t offset) {
 
     va -= offset % SECTSIZE;
 
-    uint32_t secno = (offset / SECTSIZE) + 1;
+    uint32_t secno = (offset / SECTSIZE) + 1;  // skip boot sector
 
     for (; va < end_va; va += SECTSIZE, secno++) {
         readsect((void *)va, secno);

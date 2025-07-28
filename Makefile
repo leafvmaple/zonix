@@ -103,6 +103,7 @@ INCLUDE	+=  include  \
 
 KSRCDIR :=	kern          \
             kern/arch/x86 \
+			kern/debug    \
             kern/cons     \
             kern/trap     \
             kern/drivers  \
