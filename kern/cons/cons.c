@@ -8,11 +8,12 @@
 #include "defs/x86/seg.h"
 #include "io.h"
 
+extern uint8_t KERNEL_START[];
 
 void cons_init() {
     cga_init();
     kbd_init();
-    cprintf("Zonix OS is Loading in [0x%x]...\n", KERNEL_BASE);
+    cprintf("Zonix OS is Loading in [0x%x]...\n", KERNEL_START);
 }
 
 char cons_getc(void) {

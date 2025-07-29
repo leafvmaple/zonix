@@ -37,32 +37,10 @@ static inline uintptr_t page2pa(Page *page) {
     return (page - pages) << PG_SHIFT;
 }
 
-static void get_max_pa(uint64_t addr, uint64_t size, uint32_t type, void *arg) {
-	cprintf("  memory: %lx, [%lx, %lx), type = %d.\n", size, addr, addr + size - 1, type);
-
-	uint64_t* max_pa = (uint64_t*)arg;
-	if (type == E820_RAM && *max_pa < addr + size) {
-		*max_pa = addr + size;
-	}
-}
-
 static void pmm_mgr_init() {
     pmm_mgr = &simple_pmm_mgr;
     cprintf("memory management: %s\n", pmm_mgr->name);
     pmm_mgr->init();
-}
-
-static void pmm_memmap_init(uint64_t addr, uint64_t size, uint32_t type, void *arg) {
-	if (type == E820_RAM) {
-		uintptr_t valid_mem = *((uintptr_t*)arg);
-		uintptr_t end = addr + size;
-		if (addr < valid_mem) {
-			addr = valid_mem;
-		}
-		if (addr < end) {
-			pmm_mgr->init_memmap(pages + PAG_NUM(addr), PAG_NUM(end - addr));
-		}
-	}
 }
 
 struct Page* pages_alloc(size_t n) {
@@ -170,7 +148,7 @@ static void page_init() {
 	int index = 0;
 	uint32_t type;
 	while (e820map_get_items(index++, &addr, &size, &type)) {
-		cprintf("  memory: %lx, [%lx, %lx), type = %d.\n", size, addr, addr + size - 1, type);
+		cprintf("  memory: %08lx, [%08lx, %08lx], type = %d.\n", size, addr, addr + size - 1, type);
 		if (type == E820_RAM && max_pa < addr + size) {
 			max_pa = addr + size;
 		}

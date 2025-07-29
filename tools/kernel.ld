@@ -5,6 +5,8 @@ ENTRY(_main)
 SECTIONS {
 	. = 0xC0100000;
 
+	PROVIDE(KERNEL_START = .);
+
 	.text : {
 		*(.text .stub .text.* .gnu.linkonce.t.*)
 	}
