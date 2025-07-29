@@ -142,6 +142,7 @@ static void page_init() {
 	uint64_t max_pa = 0, addr, size;
 
 	boot_cr3 = P_ADDR(boot_pgdir);
+	boot_pgdir[PDX(VPT)] = P_ADDR(boot_pgdir) | PTE_P | PTE_W;
 
 	cprintf("e820map: [0x%x]\n", E820_MEM_BASE + KERNEL_BASE);
 
@@ -163,20 +164,22 @@ static void page_init() {
 		SET_PAGE_RESERVED(pages + i);
 	}
 	
-	uintptr_t valid_mem = pages + npage;
-
-	boot_pgdir[PDX(VPT)] = P_ADDR(boot_pgdir) | PTE_P | PTE_W;
+	uintptr_t valid_mem = P_ADDR(pages + npage);
 
 	print_pgdir();
 
 	index = 0;
 	while (e820map_get_items(index++, &addr, &size, &type)) {
 		if (type == E820_RAM) {
+			uint64_t limit = addr + size;
 			if (addr < valid_mem)
 				addr = valid_mem;
 
-			if (addr < addr + size)
-				pmm_mgr->init_memmap(pages + PAG_NUM(addr), PAG_NUM(size));
+			if (addr < limit) {
+				addr = ROUND_UP(addr, PG_SIZE);
+				limit = ROUND_DOWN(limit, PG_SIZE);
+				pmm_mgr->init_memmap(pages + PAG_NUM(addr), PAG_NUM(limit - addr));
+			}
 		}
 	}
 

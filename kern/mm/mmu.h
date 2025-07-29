@@ -13,6 +13,7 @@ const int PTE_NUM = 1 << (PDX_SHIFT - PTX_SHIFT);  // number of entries in a
 
 const int PDX_MASK = PDE_NUM - 1;  // mask for PDX
 const int PTX_MASK = PTE_NUM - 1;  // mask for PTX
+const int PG_MASK  = PG_SIZE - 1;  // size of a page in bytes
 
 const int PT_SIZE  = PG_SIZE * PTE_NUM;  // bytes mapped by a page directory entry
 
@@ -25,6 +26,8 @@ const int PT_SIZE  = PG_SIZE * PTE_NUM;  // bytes mapped by a page directory ent
 #define PTE_ADDR(pte) ((uintptr_t)(pte) & ~0xFFF)
 
 #define PDE_ADDR(pde) PTE_ADDR(pde)
+
+#define PG_OFF(la) ((uintptr_t)(la) & PG_MASK)
 
 #define PG_ADDR(d, t, o) ((uintptr_t)((d) << PDX_SHIFT | (t) << PTX_SHIFT | (o)))
 
