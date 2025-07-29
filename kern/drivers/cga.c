@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "io.h"
+#include "defs/x86/seg.h"
 
 #define CGA_IDX_REG  0x3D4
 #define CGA_DATA_REG 0x3D5
@@ -16,7 +17,7 @@
 
 #define CRT_ERASE_CHAR  0x0720;
 
-uint16_t *crt_buf = (uint16_t *)CGA_BUF;
+uint16_t *crt_buf = (uint16_t *)(CGA_BUF + KERNEL_BASE);
 static uint16_t crt_pos = 0;
 
 static void cur_update() {

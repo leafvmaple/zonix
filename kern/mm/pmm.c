@@ -21,13 +21,17 @@ pde_t* boot_pgdir = &__boot_pgdir;
 
 uintptr_t boot_cr3;
 
+
 long user_stack [ PG_SIZE >> 2 ] ;
 
 long* STACK_START = &user_stack [PG_SIZE >> 2];
 
 const pmm_manager* pmm_mgr;
-Page *pages = 0;  // start of memory pages
+Page *pages = 0;
 uint32_t npage = 0;
+
+pte_t *const vpt = (pte_t *)VPT;
+pde_t *const vpd = (pde_t *)PG_ADDR(PDX(VPT), PDX(VPT), 0);
 
 static inline uintptr_t page2pa(Page *page) {
     return (page - pages) << PG_SHIFT;
@@ -103,7 +107,8 @@ pte_t* get_pte(pde_t* pgdir, uintptr_t la, int create) {
     return (pte_t*)PDE_ADDR(*pdep) + PTX(la);
 }
 
-static void pte_init(pde_t* pgdir, uintptr_t la, size_t size, uintptr_t pa, uint32_t perm) {
+// fill all entries in page directory
+static void pde_init(pde_t* pgdir, uintptr_t la, size_t size, uintptr_t pa, uint32_t perm) {
 	size_t n = ROUND_UP(size, PG_SIZE) / PG_SIZE;
     la = ROUND_DOWN(la, PG_SIZE);
     pa = ROUND_DOWN(pa, PG_SIZE);
@@ -114,15 +119,56 @@ static void pte_init(pde_t* pgdir, uintptr_t la, size_t size, uintptr_t pa, uint
     }
 }
 
+static int get_pgtable_items(size_t start, size_t limit, uintptr_t *table, size_t *left, size_t *right) {
+    if (start >= limit) {
+        return 0;
+    }
+    while (start < limit && !(table[start] & PTE_P)) {
+        start++;
+    }
+    if (start < limit) {
+		*left = start;
+        int perm = (table[start++] & PTE_USER);
+        while (start < limit && (table[start] & PTE_USER) == perm) {
+            start++;
+        }
+		*right = start;
+        return perm;
+    }
+    return 0;
+}
+
+static const char* perm2str(int perm) {
+    static char str[4];
+    str[0] = (perm & PTE_U) ? 'u' : '-';
+    str[1] = 'r';
+    str[2] = (perm & PTE_W) ? 'w' : '-';
+    str[3] = '\0';
+    return str;
+}
+
+void print_pgdir() {
+    cprintf("-------------------- BEGIN --------------------\n");
+    size_t left, right = 0, perm;
+    while ((perm = get_pgtable_items(right, PDE_NUM, vpd, &left, &right)) != 0) {
+        cprintf("PDE(%03x) %08x-%08x %08x %s\n", right - left, left * PT_SIZE, right * PT_SIZE, (right - left) * PT_SIZE, perm2str(perm));
+        size_t l, r = left * PTE_NUM;
+        while ((perm = get_pgtable_items(right * PTE_NUM, r, vpt, &l, &r)) != 0) {
+            cprintf("  |-- PTE(%05x) %08x-%08x %08x %s\n", r - l, l * PG_SIZE, r * PG_SIZE, (r - l) * PG_SIZE, perm2str(perm));
+        }
+    }
+    cprintf("--------------------- END ---------------------\n");
+}
+
 static void page_init() {
 	uint64_t max_pa = 0;
 
-	cprintf("e820map: [0x%x]\n", E820_MEM_BASE);
+	cprintf("e820map: [0x%x]\n", E820_MEM_BASE + KERNEL_BASE);
 	e820_traverse(get_max_pa, (void*)&max_pa);
 
 	extern uint8_t KERNEL_END[];
 	
-	boot_cr3 = boot_pgdir;
+	boot_cr3 = P_ADDR(boot_pgdir);
 
 	npage = PAG_NUM(max_pa);
 	pages = (Page*)ROUND_UP((void *)KERNEL_END, PG_SIZE);
@@ -134,9 +180,13 @@ static void page_init() {
 	uintptr_t valid_mem = pages + npage;
 	e820_traverse(pmm_memmap_init, (void*)&valid_mem);
 
-	pte_init(boot_pgdir, KERNEL_BASE, KMEM_SIZE, 0, PTE_W);
+	boot_pgdir[PDX(VPT)] = P_ADDR(boot_pgdir) | PTE_P | PTE_W;
 
-	pmm_mgr->check();
+	pde_init(boot_pgdir, KERNEL_BASE, KMEM_SIZE, 0, PTE_W);
+
+	// pmm_mgr->check();
+
+	print_pgdir();
 }
 
 

@@ -14,7 +14,7 @@ struct e820map {
 };
 
 void e820_traverse(e820_cb cb, void *arg) {
-    struct e820map *e820map = (struct e820map *)(E820_MEM_BASE);
+    struct e820map *e820map = (struct e820map *)(E820_MEM_BASE + KERNEL_BASE);
     for (int i = 0; i < e820map->nr_map; i++) {
         cb(e820map->map[i].addr, e820map->map[i].size, e820map->map[i].type, arg);
     }

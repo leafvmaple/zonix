@@ -1,14 +1,32 @@
 #pragma once
 
+#include "defs/x86/pg.h"
+#include "defs/x86/seg.h"
+
+#define ADDR_BITS 32  // address length in bits
+
 #define PTX_SHIFT 12  // offset of PTX in a linear address
 #define PDX_SHIFT 22  // offset of PDX in a linear address
 
+const int PDE_NUM = 1 << (ADDR_BITS - PDX_SHIFT);  // number of entries in a page directory
+const int PTE_NUM = 1 << (PDX_SHIFT - PTX_SHIFT);  // number of entries in a
+
+const int PDX_MASK = PDE_NUM - 1;  // mask for PDX
+const int PTX_MASK = PTE_NUM - 1;  // mask for PTX
+
+const int PT_SIZE  = PG_SIZE * PTE_NUM;  // bytes mapped by a page directory entry
+
 // page directory index
-#define PDX(la) ((((uintptr_t)(la)) >> PDX_SHIFT) & 0x3FF)
+#define PDX(la) ((((uintptr_t)(la)) >> PDX_SHIFT) & PDX_MASK)
 
 // page table index
-#define PTX(la) ((((uintptr_t)(la)) >> PTX_SHIFT) & 0x3FF)
+#define PTX(la) ((((uintptr_t)(la)) >> PTX_SHIFT) & PTX_MASK)
 
 #define PTE_ADDR(pte) ((uintptr_t)(pte) & ~0xFFF)
 
 #define PDE_ADDR(pde) PTE_ADDR(pde)
+
+#define PG_ADDR(d, t, o) ((uintptr_t)((d) << PDX_SHIFT | (t) << PTX_SHIFT | (o)))
+
+#define P_ADDR(kva) ((uintptr_t)(kva) - KERNEL_BASE)          // convert kernel virtual address to physical address
+#define K_ADDR(pa) ((void *)((uintptr_t)(pa) + KERNEL_BASE))  // convert physical address to kernel virtual address

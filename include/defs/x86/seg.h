@@ -55,8 +55,7 @@
 
 // Memory Layout
 
-// #define KERNEL_BASE 0xC0000000
-#define KERNEL_BASE 0x0
+#define KERNEL_BASE 0xC0000000
 #define KERNEL_HEADER 0x10000
 
 #define KMEM_SIZE 0x38000000
@@ -68,6 +67,15 @@
 #define E820_ACPI 3
 #define E820_NVS 4
 
+#define VPT 0xFAC00000
+
+// Logical Memory Layout
+/*
+      KERNEL_BASE ---------> +---------------------------------+ 0xC0000000
+*/
+
+
+// Physical Memory Management
 /* *
       DISK2_END -----------> +---------------------------------+ 0x01FF0000   32MB
       KERNEL_BASE ---------> +---------------------------------+ 0x00100000    1MB

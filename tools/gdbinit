@@ -1,10 +1,13 @@
-# file bin/bootblock
-file bin/kernel
+file bin/bootblock
+# file bin/kernel
 target remote :1234
+# b bootmain
+b bootload.c:51
+# b head.S:11
 # b kern_init
 # b time.c:36
 # b e820.c:6
 # b pmm.c:51
 # b head.S:8
-b simple_pmm.c:90
+# b simple_pmm.c:90
 c

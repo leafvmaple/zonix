@@ -2,6 +2,8 @@
 #include "defs/x86/seg.h"
 #include "defs/x86/cr.h"
 
+#define REALLOC(x) (x - KERNEL_BASE)
+
 .globl _main, __gdt, __idt, __boot_pgdir
 
 .code32                                             # Assemble for 32-bit mode
@@ -19,19 +21,19 @@ _spin:
     jmp _spin
 
 _load_gdt:
-    lgdt __gdtdesc
+    lgdt REALLOC(__gdtdesc)
     ret
 
 _load_idt:
-    lidt __idtdesc
+    lidt REALLOC(__idtdesc)
     ret
 
 _load_pgdir:
-    movl $__boot_pgdir, %eax
+    movl $REALLOC(__boot_pgdir), %eax      // __boot_pgdir为虚拟地址，cr3需要的是物理地址
     movl %eax, %cr3
 
     movl %cr0, %eax
-    orl $CR0_PG, %eax
+    orl $CR0_PG, %eax   // Paging Enable
     movl %eax, %cr0
 
     ret
@@ -62,7 +64,9 @@ __idtdesc:
 .align PG_SIZE
 __boot_pgdir:
     # map va 0 ~ 4M to pa 0 ~ 4M (temporary)
-    .long __boot_pt1 + (PTE_P | PTE_U | PTE_W)
+    .long REALLOC(__boot_pt1) + (PTE_P | PTE_U | PTE_W)
+    .space (KERNEL_BASE >> PG_SHIFT >> 10 << 2) - (. - __boot_pgdir) # pad to PDE of KERNBASE
+    .long REALLOC(__boot_pt1) + (PTE_P | PTE_U | PTE_W)
     .space PG_SIZE - (. - __boot_pgdir)
 
 .set i, 0

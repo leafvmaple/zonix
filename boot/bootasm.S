@@ -103,13 +103,16 @@ protected:
     movw %ax, %gs                                   # -> GS
     movw %ax, %ss                                   # -> SS: Stack Segment
 
+    movl $0x0,    %ebp
+    movl $_start, %esp   # esp will decrease when push value to stack
+
     call bootmain
 
 .p2align 2
 gdt16:
     GEN_SEG_NULL                                    # null seg
-    GEN_SEG_DESC(STA_X|STA_R, 0x0, 0x7fffff)        # code seg for bootloader and kernel
-    GEN_SEG_DESC(STA_W, 0x0, 0x7fffff)              # data seg for bootloader and kernel
+    GEN_SEG_DESC(STA_X|STA_R, 0x0, 0xffffffff)        # code seg for bootloader and kernel
+    GEN_SEG_DESC(STA_W, 0x0, 0xffffffff)              # data seg for bootloader and kernel
 __gdt16_end:
 
 gdt48:
