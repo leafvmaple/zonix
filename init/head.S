@@ -12,6 +12,9 @@ _main:
     call _load_idt
     call _load_pgdir
 
+    leal next, %eax
+    jmp *%eax
+next:
     movl STACK_START, %esp
 
     call kern_init

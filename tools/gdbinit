@@ -1,13 +1,19 @@
-file bin/bootblock
-# file bin/kernel
+# file bin/bootblock
+file bin/kernel
 target remote :1234
 # b bootmain
-b bootload.c:51
-# b head.S:11
+# b *0x10000a
+# b *0x10001d
+# b *0x100023
+# b *0x100034
+# b head.S:14
+# b kern_init
+# b bootload.c:51
 # b kern_init
 # b time.c:36
 # b e820.c:6
-# b pmm.c:51
+b stdio.c:72
+# b pmm.c:191
 # b head.S:8
 # b simple_pmm.c:90
 c

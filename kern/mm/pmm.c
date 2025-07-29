@@ -153,7 +153,7 @@ void print_pgdir() {
     while ((perm = get_pgtable_items(right, PDE_NUM, vpd, &left, &right)) != 0) {
         cprintf("PDE(%03x) %08x-%08x %08x %s\n", right - left, left * PT_SIZE, right * PT_SIZE, (right - left) * PT_SIZE, perm2str(perm));
         size_t l, r = left * PTE_NUM;
-        while ((perm = get_pgtable_items(right * PTE_NUM, r, vpt, &l, &r)) != 0) {
+        while ((perm = get_pgtable_items(r, right * PTE_NUM, vpt, &l, &r)) != 0) {
             cprintf("  |-- PTE(%05x) %08x-%08x %08x %s\n", r - l, l * PG_SIZE, r * PG_SIZE, (r - l) * PG_SIZE, perm2str(perm));
         }
     }
@@ -161,14 +161,22 @@ void print_pgdir() {
 }
 
 static void page_init() {
-	uint64_t max_pa = 0;
+	uint64_t max_pa = 0, addr, size;
+
+	boot_cr3 = P_ADDR(boot_pgdir);
 
 	cprintf("e820map: [0x%x]\n", E820_MEM_BASE + KERNEL_BASE);
-	e820_traverse(get_max_pa, (void*)&max_pa);
+
+	int index = 0;
+	uint32_t type;
+	while (e820map_get_items(index++, &addr, &size, &type)) {
+		cprintf("  memory: %lx, [%lx, %lx), type = %d.\n", size, addr, addr + size - 1, type);
+		if (type == E820_RAM && max_pa < addr + size) {
+			max_pa = addr + size;
+		}
+	}
 
 	extern uint8_t KERNEL_END[];
-	
-	boot_cr3 = P_ADDR(boot_pgdir);
 
 	npage = PAG_NUM(max_pa);
 	pages = (Page*)ROUND_UP((void *)KERNEL_END, PG_SIZE);
@@ -178,9 +186,21 @@ static void page_init() {
 	}
 	
 	uintptr_t valid_mem = pages + npage;
-	e820_traverse(pmm_memmap_init, (void*)&valid_mem);
 
 	boot_pgdir[PDX(VPT)] = P_ADDR(boot_pgdir) | PTE_P | PTE_W;
+
+	print_pgdir();
+
+	index = 0;
+	while (e820map_get_items(index++, &addr, &size, &type)) {
+		if (type == E820_RAM) {
+			if (addr < valid_mem)
+				addr = valid_mem;
+
+			if (addr < addr + size)
+				pmm_mgr->init_memmap(pages + PAG_NUM(addr), PAG_NUM(size));
+		}
+	}
 
 	pde_init(boot_pgdir, KERNEL_BASE, KMEM_SIZE, 0, PTE_W);
 
