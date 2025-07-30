@@ -26,7 +26,7 @@
 })
 
 /* Round up to the nearest multiple of n */
-#define ROUND_UP(a, n) ({                                \
+#define ROUND_UP(a, n) ({                                   \
     uint32_t __n = (uint32_t)(n);                           \
-    (typeof(a))(ROUND_DOWN((uint32_t)(a) + __n - 1, __n)); \
+    (typeof(a))(ROUND_DOWN((uint32_t)(a) + __n - 1, __n));  \
 })

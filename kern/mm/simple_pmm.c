@@ -4,7 +4,7 @@
 free_area_t _free;
 
 static void init() {
-    list_init(&_free);
+    list_init(&_free.free_list);
     _free.nr_free = 0;
 }
 

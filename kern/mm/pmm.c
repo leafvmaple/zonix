@@ -1,9 +1,10 @@
 #include "pmm.h"
 #include "mmu.h"
-#include "memory.h"
 #include "../debug/assert.h"
-
 #include "../arch/x86/e820.h"
+
+#include "memory.h"
+#include "stdio.h"
 #include "math.h"
 
 #include "defs/x86/pg.h"
@@ -37,7 +38,7 @@ static inline uintptr_t page2pa(PageDesc *page) {
     return (page - pages) << PG_SHIFT;
 }
 
-static inline uintptr_t pa2page(uintptr_t pa) {
+static inline PageDesc* pa2page(uintptr_t pa) {
 	return pages + PAG_NUM(pa);
 }
 
@@ -83,10 +84,10 @@ pte_t* get_pte(pde_t* pgdir, uintptr_t la, int create) {
         page->ref = 1;
 
         pde_t pa = page2pa(page);
-        memset(pa, 0, PG_SIZE);
+        memset(K_ADDR(pa), 0, PG_SIZE);
         *pdep = pa | PTE_USER;
     }
-    return (pte_t*)PDE_ADDR(*pdep) + PTX(la);
+    return (pte_t*)K_ADDR(PDE_ADDR(*pdep)) + PTX(la);
 }
 
 // fill all entries in page directory

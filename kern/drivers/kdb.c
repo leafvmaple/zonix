@@ -6,6 +6,8 @@
 #include "types.h"
 #include "io.h"
 
+#include "pic.h"
+
 static uint8_t normal_map[256] = {
     NO  , 0x1B, '1', '2' , '3' , '4', '5' , '6' ,  // 0x00
     '7' , '8' , '9', '0' , '-' , '=', '\b', '\t',

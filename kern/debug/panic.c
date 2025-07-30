@@ -1,5 +1,8 @@
 #include "stdio.h"
 #include "stdarg.h"
+#include "../drivers/intr.h"
+
+#include "assert.h"
 
 static int is_panic = 0;
 

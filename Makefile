@@ -1,7 +1,7 @@
 .SECONDEXPANSION:
 
 CC		:= gcc
-CFLAGS	:= -g -fno-builtin -Wall -ggdb -O0 -m32 -gstabs -nostdinc -fno-stack-protector -fno-PIC -gdwarf-2
+CFLAGS	:= -g -fno-builtin -Wall -ggdb -O0 -m32 -nostdinc -fno-stack-protector -fno-PIC -gdwarf-2
 
 HOSTCC		:= gcc
 HOSTCFLAGS	:= -g -Wall -O2

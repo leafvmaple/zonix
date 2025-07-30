@@ -7,7 +7,7 @@
 #define FMT_NONE 0
 #define FMT_TRANSFER 1
 
-int print_digit(uint64_t num, int base, int width, char padc) {
+void print_digit(uint64_t num, int base, int width, char padc) {
     uint32_t mod = 0;
     if (num >= base) {
         mod = do_div(num, base);
@@ -23,12 +23,12 @@ int print_digit(uint64_t num, int base, int width, char padc) {
     cons_putc(mod < 10 ? '0' + mod : 'A' + mod - 10);
 }
 
-int print_num(va_list* args, int base, int lflag, int width, char padc) {
+void print_num(va_list* args, int base, int lflag, int width, char padc) {
     uint64_t num = lflag ? va_arg(*args, uint64_t) : va_arg(*args, uint32_t);
     print_digit(num, base, width, padc);
 }
 
-int print_str(va_list* args) {
+void print_str(va_list* args) {
     char* s = va_arg(*args, char*);
     while (*s) {
         cons_putc(*s++);
@@ -43,7 +43,7 @@ int cprintf(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
-    while (c = *fmt++) {
+    while ((c = *fmt++)) {
         switch (status)
         {
         case FMT_NONE:
@@ -88,4 +88,6 @@ int cprintf(const char *fmt, ...) {
         }
     }
     va_end(args);
+
+    return 0; // TODO: return the number of characters printed
 }
