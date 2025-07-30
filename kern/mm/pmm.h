@@ -42,4 +42,6 @@ typedef struct {
 #define CLEAR_PAGE_RESERVED(page) (CLEAR_BIT((page), PG_RESERVED))
 #define PAGE_RESERVED(page) (TEST_BIT((page), PG_RESERVED))
 
+void tlb_invl(pde_t *pgdir, uintptr_t la);
+
 void pmm_init();

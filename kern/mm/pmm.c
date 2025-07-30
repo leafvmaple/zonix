@@ -86,7 +86,7 @@ pte_t* get_pte(pde_t* pgdir, uintptr_t la, int create) {
 }
 
 // fill all entries in page directory
-static void pde_init(pde_t* pgdir, uintptr_t la, size_t size, uintptr_t pa, uint32_t perm) {
+static void pgdir_init(pde_t* pgdir, uintptr_t la, size_t size, uintptr_t pa, uint32_t perm) {
 	size_t n = ROUND_UP(size, PG_SIZE) / PG_SIZE;
     la = ROUND_DOWN(la, PG_SIZE);
     pa = ROUND_DOWN(pa, PG_SIZE);
@@ -119,7 +119,7 @@ static int get_pgtable_items(size_t start, size_t limit, uintptr_t *table, size_
 static const char* perm2str(int perm) {
     static char str[4];
     str[0] = (perm & PTE_U) ? 'u' : '-';
-    str[1] = 'r';
+    str[1] = (perm & PTE_P) ? 'r' : '-';
     str[2] = (perm & PTE_W) ? 'w' : '-';
     str[3] = '\0';
     return str;
@@ -163,10 +163,10 @@ static void page_init() {
 	for (int i = 0; i < npage; i++) {
 		SET_PAGE_RESERVED(pages + i);
 	}
-	
-	uintptr_t valid_mem = P_ADDR(pages + npage);
 
 	print_pgdir();
+	
+	uintptr_t valid_mem = P_ADDR(pages + npage);
 
 	index = 0;
 	while (e820map_get_items(index++, &addr, &size, &type)) {
@@ -183,13 +183,18 @@ static void page_init() {
 		}
 	}
 
-	pde_init(boot_pgdir, KERNEL_BASE, KMEM_SIZE, 0, PTE_W);
+	pgdir_init(boot_pgdir, KERNEL_BASE, KERNEL_MEM_SIZE, 0, PTE_W);
 
 	// pmm_mgr->check();
 
 	print_pgdir();
 }
 
+void tlb_invl(pde_t *pgdir, uintptr_t la) {
+    if (rcr3() == P_ADDR(pgdir)) {
+        invlpg((void *)la);
+    }
+}
 
 void pmm_init() {
 	pmm_mgr_init();

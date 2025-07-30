@@ -3,20 +3,23 @@
 #include "types.h"
 
 static inline uint8_t inb(uint16_t port) __attribute__((always_inline));
+static inline uint8_t inb_p(uint16_t port) __attribute__((always_inline));
 static inline void insl(uint32_t port, void *addr, int cnt) __attribute__((always_inline));
 
 static inline void outb(uint16_t port, uint8_t data) __attribute__((always_inline));
 static inline void outw(uint16_t port, uint16_t data) __attribute__((always_inline));
+
+static inline void outb_p(uint16_t port, uint8_t data) __attribute__((always_inline));
 
 static inline uint32_t read_eflags(void) __attribute__((always_inline));
 static inline void write_eflags(uint32_t eflags) __attribute__((always_inline));
 
 static inline void lcr0(uintptr_t cr0) __attribute__((always_inline));
 static inline void lcr3(uintptr_t cr3) __attribute__((always_inline));
+static inline uintptr_t rcr3(void) __attribute__((always_inline));
 
-static inline void outb(uint16_t port, uint8_t data) {
-    asm volatile ("outb %0, %1" :: "a"(data), "d"(port));
-}
+static inline void invlpg(void *addr) __attribute__((always_inline));
+
 
 static inline uint8_t inb(uint16_t port) {
     uint8_t data;
@@ -24,16 +27,13 @@ static inline uint8_t inb(uint16_t port) {
     return data;
 }
 
-static inline void outw(uint16_t port, uint16_t data) {
-    asm volatile("outw %0, %1" ::"a"(data), "d"(port) : "memory");
-}
-
-static inline void lcr0(uintptr_t cr0) {
-    asm volatile("mov %0, %%cr0" ::"r"(cr0) : "memory");
-}
-
-static inline void lcr3(uintptr_t cr3) {
-    asm volatile("mov %0, %%cr3" ::"r"(cr3) : "memory");
+static inline uint8_t inb_p(uint16_t port) {
+    uint8_t data;
+    asm volatile ("inb %1, %0;"
+	    "jmp 1f;"
+	    "1:jmp 1f;"
+	    "1:" : "=a" (data) : "d" (port));
+    return data;
 }
 
 // Read [cnt] Bytes to adress [addr] from port [port]
@@ -46,24 +46,19 @@ static inline void insl(uint32_t port, void *addr, int cnt) {
             : "memory", "cc");
 }
 
-static inline  __attribute__((always_inline)) void lidt(struct gate_desc_table* pd) {
-    asm volatile("lidt (%0)" ::"r"(pd) : "memory");
+static inline void outb(uint16_t port, uint8_t data) {
+    asm volatile ("outb %0, %1" :: "a"(data), "d"(port));
 }
 
-static inline  __attribute__((always_inline)) void outb_p(uint16_t port, uint8_t data) {
+static inline void outw(uint16_t port, uint16_t data) {
+    asm volatile("outw %0, %1" ::"a"(data), "d"(port) : "memory");
+}
+
+static inline void outb_p(uint16_t port, uint8_t data) {
     asm volatile ("outb %0, %1;"
 		"jmp 1f;"
 		"1:jmp 1f;"
 		"1:" :: "a"(data), "d"(port));
-}
-
-static inline  __attribute__((always_inline)) uint8_t inb_p(uint16_t port) {
-    uint8_t data;
-    asm volatile ("inb %1, %0;"
-	    "jmp 1f;"
-	    "1:jmp 1f;"
-	    "1:" : "=a" (data) : "d" (port));
-    return data;
 }
 
 static inline uint32_t read_eflags(void) {
@@ -74,4 +69,22 @@ static inline uint32_t read_eflags(void) {
 
 static inline void write_eflags(uint32_t eflags) {
     asm volatile("pushl %0; popfl" ::"r"(eflags));
+}
+
+static inline void lcr0(uintptr_t cr0) {
+    asm volatile("mov %0, %%cr0" ::"r"(cr0) : "memory");
+}
+
+static inline void lcr3(uintptr_t cr3) {
+    asm volatile("mov %0, %%cr3" ::"r"(cr3) : "memory");
+}
+
+static inline uintptr_t rcr3(void) {
+    uintptr_t cr3;
+    asm volatile("mov %%cr3, %0" : "=r"(cr3));
+    return cr3;
+}
+
+static inline void invlpg(void *addr) {
+    asm volatile("invlpg (%0)" :: "r"(addr) : "memory");
 }

@@ -3,7 +3,7 @@
 #include "elf.h"
 #include "io.h"
 
-#define SECTSIZE 512
+#define SECT_SIZE 512
 
 static void waitdisk() {
     while ((inb(0x1F7) & 0xC0) != 0x40)
@@ -22,24 +22,24 @@ static void readsect(void *dst, uint32_t secno) {
 
     waitdisk();
 
-    insl(0x1F0, dst, SECTSIZE / 4);
+    insl(0x1F0, dst, SECT_SIZE / 4);
 }
 
 static void readseg(uintptr_t va, uint32_t count, uint32_t offset) {
     uintptr_t end_va = va + count;
 
-    va -= offset % SECTSIZE;
+    va -= offset % SECT_SIZE;
 
-    uint32_t secno = (offset / SECTSIZE) + 1;  // skip boot sector
+    uint32_t secno = (offset / SECT_SIZE) + 1;  // skip boot sector
 
-    for (; va < end_va; va += SECTSIZE, secno++) {
+    for (; va < end_va; va += SECT_SIZE, secno++) {
         readsect((void *)va, secno);
     }
 }
 
 void bootmain(void) {
     elfhdr* hdr = (elfhdr *)KERNEL_HEADER;
-    readseg((uintptr_t)hdr, SECTSIZE * 8, 0);
+    readseg((uintptr_t)hdr, SECT_SIZE * 8, 0);
 
     if (hdr->e_magic != ELF_MAGIC) {
         goto bad;
