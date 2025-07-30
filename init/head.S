@@ -15,6 +15,10 @@ _main:
     leal next, %eax
     jmp *%eax
 next:
+    # unmap va 0 ~ 4M, it's temporary mapping
+    xorl %eax, %eax
+    movl %eax, __boot_pgdir
+
     movl STACK_START, %esp
 
     call kern_init

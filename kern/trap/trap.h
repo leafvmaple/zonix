@@ -1,7 +1,7 @@
 #pragma once
 #include "types.h"
 
-struct trap_regs {
+typedef struct trap_regs {
     uint32_t reg_edi;
     uint32_t reg_esi;
     uint32_t reg_ebp;
@@ -10,12 +10,12 @@ struct trap_regs {
     uint32_t reg_edx;
     uint32_t reg_ecx;
     uint32_t reg_eax;
-};
+} trap_regs;
 
-struct trap_frame {
+typedef struct trap_frame {
     struct trap_regs tf_regs;
 
     uint32_t tf_trapno;
     uint32_t tf_err;
     uintptr_t tf_eip;
-};
+} trap_frame;

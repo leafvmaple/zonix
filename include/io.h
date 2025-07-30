@@ -16,6 +16,8 @@ static inline void write_eflags(uint32_t eflags) __attribute__((always_inline));
 
 static inline void lcr0(uintptr_t cr0) __attribute__((always_inline));
 static inline void lcr3(uintptr_t cr3) __attribute__((always_inline));
+
+static inline uintptr_t rcr2(void) __attribute__((always_inline));
 static inline uintptr_t rcr3(void) __attribute__((always_inline));
 
 static inline void invlpg(void *addr) __attribute__((always_inline));
@@ -79,9 +81,15 @@ static inline void lcr3(uintptr_t cr3) {
     asm volatile("mov %0, %%cr3" ::"r"(cr3) : "memory");
 }
 
+static inline uintptr_t rcr2(void) {
+    uintptr_t cr2;
+    asm volatile("mov %%cr2, %0" : "=r"(cr2)::"memory");
+    return cr2;
+}
+
 static inline uintptr_t rcr3(void) {
     uintptr_t cr3;
-    asm volatile("mov %%cr3, %0" : "=r"(cr3));
+    asm volatile("mov %%cr3, %0" : "=r"(cr3)::"memory");
     return cr3;
 }
 

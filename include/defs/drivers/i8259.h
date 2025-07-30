@@ -28,6 +28,10 @@
 
 #define OCW3_ASM(n)     (0x08 | (n))
 
+#define T_PGFLT 14  // page fault
+
+#define IRQ_OFFSET 0x20
+
 #define IRQ_TIMER 0
 #define IRQ_KBD   1
 #define IRQ_SLAVE 2
@@ -35,7 +39,5 @@
 #define IRQ_RTC   8
 #define IRQ_IDE1  14
 #define IRQ_IDE2  15
-
-#define IRQ_OFFSET 0x20
 
 #define BIT_SLAVE (1 << IRQ_SLAVE)
