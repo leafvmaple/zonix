@@ -5,6 +5,7 @@
 #include "arch/x86/idt.h"
 #include "cons/cons.h"
 #include "mm/pmm.h"
+#include "mm/vmm.h"
 #include "sched/sched.h"
 #include "unistd.h"
 
@@ -23,6 +24,7 @@ int kern_init(void) {
     // module
     cons_init();
     pmm_init();
+    vmm_init();
     sched_init();
 
     intr_enable();

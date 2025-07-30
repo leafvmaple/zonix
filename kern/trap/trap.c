@@ -10,6 +10,7 @@
 #include "../drivers/kdb.h"
 #include "../drivers/pit.h"
 #include "../cons/cons.h"
+#include "../mm/vmm.h"
 
 #define TICK_NUM 100
 
@@ -66,6 +67,13 @@ void print_trapframe(trap_frame *tf) {
     cprintf("  eip  0x%08x\n", tf->tf_eip);
 }
 
+void print_pgfault(trap_frame *tf) {
+    cprintf("page fault at 0x%08x: %c/%c [%s].\n", rcr2(),
+            (tf->tf_err & 4) ? 'U' : 'K',
+            (tf->tf_err & 2) ? 'W' : 'R',
+            (tf->tf_err & 1) ? "protection fault" : "no page found");
+}
+
 static void irq_timer(trap_frame *tf) {
     ticks++;
     if ((int)ticks % TICK_NUM == 0) {
@@ -78,17 +86,21 @@ static void irq_kbd(trap_frame *tf) {
     cons_putc(c);
 }
 
+extern mm_struct init_mm;
+
 static int pg_fault(trap_frame *tf) {
-    cprintf("page fault at 0x%08x: %c/%c [%s].\n", rcr2(),
-            (tf->tf_err & 4) ? 'U' : 'K',
-            (tf->tf_err & 2) ? 'W' : 'R',
-            (tf->tf_err & 1) ? "protection fault" : "no page found");
+    print_trapframe(tf);
+    print_pgfault(tf);
+
+    vmm_pg_fault(&init_mm, tf->tf_err, rcr2());
+
+    return 0;
 }
 
 void trap(trap_frame *tf) {
     switch(tf->tf_trapno) {
         case T_PGFLT:
-            print_trapframe(tf);
+            pg_fault(tf);
             break;
         case IRQ_OFFSET + IRQ_TIMER:
             irq_timer(tf);
