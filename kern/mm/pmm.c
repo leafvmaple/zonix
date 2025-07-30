@@ -27,14 +27,18 @@ long user_stack [ PG_SIZE >> 2 ] ;
 long* STACK_START = &user_stack [PG_SIZE >> 2];
 
 const pmm_manager* pmm_mgr;
-Page *pages = 0;
+PageDesc *pages = NULL;
 uint32_t npage = 0;
 
 pte_t *const vpt = (pte_t *)VPT;
 pde_t *const vpd = (pde_t *)PG_ADDR(PDX(VPT), PDX(VPT), 0);
 
-static inline uintptr_t page2pa(Page *page) {
+static inline uintptr_t page2pa(PageDesc *page) {
     return (page - pages) << PG_SHIFT;
+}
+
+static inline uintptr_t pa2page(uintptr_t pa) {
+	return pages + PAG_NUM(pa);
 }
 
 static void pmm_mgr_init() {
@@ -43,8 +47,8 @@ static void pmm_mgr_init() {
     pmm_mgr->init();
 }
 
-struct Page* pages_alloc(size_t n) {
-	Page* pages = 0;
+struct PageDesc* pages_alloc(size_t n) {
+	PageDesc* pages = NULL;
 
 	uint32_t intr_flag = read_eflags() & FL_IF;
 	if (intr_flag) {
@@ -58,7 +62,7 @@ struct Page* pages_alloc(size_t n) {
 	return pages;
 }
 
-void pages_free(Page* base, size_t n) {
+void pages_free(PageDesc* base, size_t n) {
 	uint32_t intr_flag = read_eflags() & FL_IF;
 	if (intr_flag) {
 		cli();
@@ -72,7 +76,7 @@ void pages_free(Page* base, size_t n) {
 pte_t* get_pte(pde_t* pgdir, uintptr_t la, int create) {
     pde_t* pdep = pgdir + PDX(la);
     if (!(*pdep & PTE_P)) {
-        Page* page;
+        PageDesc* page;
         if (!create || (page = pages_alloc(1)) == NULL) {
             return NULL;
         }
@@ -158,7 +162,7 @@ static void page_init() {
 	extern uint8_t KERNEL_END[];
 
 	npage = PAG_NUM(max_pa);
-	pages = (Page*)ROUND_UP((void *)KERNEL_END, PG_SIZE);
+	pages = (PageDesc*)ROUND_UP((void *)KERNEL_END, PG_SIZE);
 	
 	for (int i = 0; i < npage; i++) {
 		SET_PAGE_RESERVED(pages + i);
@@ -178,7 +182,7 @@ static void page_init() {
 			if (addr < limit) {
 				addr = ROUND_UP(addr, PG_SIZE);
 				limit = ROUND_DOWN(limit, PG_SIZE);
-				pmm_mgr->init_memmap(pages + PAG_NUM(addr), PAG_NUM(limit - addr));
+				pmm_mgr->init_memmap(pa2page(addr), PAG_NUM(limit - addr));
 			}
 		}
 	}

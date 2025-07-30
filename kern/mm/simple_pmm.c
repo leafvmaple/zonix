@@ -8,8 +8,8 @@ static void init() {
     _free.nr_free = 0;
 }
 
-static void init_memmap(Page *base, size_t n) {
-    for (Page* p = base; p != base + n; p++) {
+static void init_memmap(PageDesc *base, size_t n) {
+    for (PageDesc* p = base; p != base + n; p++) {
         p->ref = p->flags = p->property = 0;
     }
     base->property = n;
@@ -18,14 +18,14 @@ static void init_memmap(Page *base, size_t n) {
     list_add_before(&_free.free_list, &(base->page_link));
 }
 
-static Page* alloc(size_t n) {
+static PageDesc* alloc(size_t n) {
     if (n > _free.nr_free) {
         return 0;
     }
     list_entry_t *le = &_free.free_list;
-    Page *page = 0;
+    PageDesc *page = 0;
     while ((le = list_next(le)) != &_free.free_list) {
-        Page *p = le2page(le, page_link);
+        PageDesc *p = le2page(le, page_link);
         if (p->property >= n) {
             page = p;
             break;
@@ -33,7 +33,7 @@ static Page* alloc(size_t n) {
     }
     if (page) {
         if (page->property > n) {
-            Page *p = page + n;
+            PageDesc *p = page + n;
             p->property = page->property - n;
             SET_PAGE_RESERVED(p);
             list_add(le, &(p->page_link));
@@ -45,8 +45,8 @@ static Page* alloc(size_t n) {
     return page;
 }
 
-static void free(Page *base, size_t n) {
-    Page* p = base;
+static void free(PageDesc *base, size_t n) {
+    PageDesc* p = base;
     for (; p != base + n; p++)
         p->flags = 0;
     base->property = n;
@@ -80,13 +80,13 @@ static void check() {
     list_entry_t *le = &_free.free_list;
     size_t total_free = 0;
     while ((le = list_next(le)) != &_free.free_list) {
-        Page *p = le2page(le, page_link);
+        PageDesc *p = le2page(le, page_link);
         assert(PAGE_RESERVED(p));
         total_free += p->property;
     }
     assert(total_free == _free.nr_free);
 
-    Page* p0 = alloc(5);
+    PageDesc* p0 = alloc(5);
     assert(p0);
     assert(PAGE_RESERVED(p0));
 }
