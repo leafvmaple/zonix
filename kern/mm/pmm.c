@@ -201,6 +201,27 @@ void tlb_invl(pde_t *pgdir, uintptr_t la) {
     }
 }
 
+struct PageDesc* pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm) {
+	PageDesc *page = pages_alloc(1);
+	if (page) {
+		page_insert(pgdir, page, la, perm);
+	}
+
+	return page;
+}
+
+int page_insert(pde_t *pgdir, struct PageDesc *page, uintptr_t la, uint32_t perm) {
+	pte_t *ptep = get_pte(pgdir, la, 1);
+	if (!ptep) {
+		return 0;
+	}
+	page->ref++;
+	*ptep = page2pa(page) | perm | PTE_P;
+
+	tlb_invl(pgdir, la);
+	return 1;
+}
+
 void pmm_init() {
 	pmm_mgr_init();
 	page_init();

@@ -12,8 +12,9 @@ target remote :1234
 # b kern_init
 # b time.c:36
 # b e820.c:6
-b pmm.c:186
+# b pmm.c:186
 # b pmm.c:191
 # b head.S:8
 # b simple_pmm.c:90
+b trap.c:95
 c

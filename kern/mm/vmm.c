@@ -1,4 +1,8 @@
 
+
+#include "defs/x86/pg.h"
+
+#include "math.h"
 #include "stdio.h"
 #include "../trap/trap.h"
 
@@ -9,6 +13,15 @@ mm_struct init_mm;
 extern pde_t* boot_pgdir;
 
 int vmm_pg_fault(mm_struct *mm, uint32_t error_code, uintptr_t addr) {
+    uint32_t perm = PTE_U;
+
+    addr = ROUND_DOWN(addr, PG_SIZE);
+
+    pte_t *ptep = get_pte(mm->pgdir, addr, 1);
+    if (*ptep == 0) {
+        pgdir_alloc_page(mm->pgdir, addr, perm);
+    }
+
     return 0;
 }
 

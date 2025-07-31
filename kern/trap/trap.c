@@ -68,10 +68,10 @@ void print_trapframe(trap_frame *tf) {
 }
 
 void print_pgfault(trap_frame *tf) {
-    cprintf("page fault at 0x%08x: %c/%c [%s].\n", rcr2(),
+    cprintf("Page Fault at 0x%08x: %c/%c [%s].\n", rcr2(),
             (tf->tf_err & 4) ? 'U' : 'K',
             (tf->tf_err & 2) ? 'W' : 'R',
-            (tf->tf_err & 1) ? "protection fault" : "no page found");
+            (tf->tf_err & 1) ? "Protection Fault" : "No Page Found");
 }
 
 static void irq_timer(trap_frame *tf) {

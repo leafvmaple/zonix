@@ -68,6 +68,7 @@ int cprintf(const char *fmt, ...) {
                 lflag = 1;
                 break;
             case 'x':
+            case 'p':
                 print_num(&args, 16, lflag, width, padc);
                 status = FMT_NONE;
                 break;
@@ -77,6 +78,10 @@ int cprintf(const char *fmt, ...) {
                 break;
             case 's':
                 print_str(&args);
+                status = FMT_NONE;
+                break;
+            case 'c':
+                cons_putc(va_arg(args, int));
                 status = FMT_NONE;
                 break;
             default:

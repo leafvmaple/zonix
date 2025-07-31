@@ -33,7 +33,9 @@
         "elf.h": "c",
         "cstdlib": "c",
         "assert.h": "c",
-        "intr.h": "c"
+        "intr.h": "c",
+        "pg.h": "c",
+        "vmm.h": "c"
     },
     "cSpell.words": [
         "ACPI",

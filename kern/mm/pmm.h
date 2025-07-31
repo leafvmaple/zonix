@@ -46,3 +46,8 @@ typedef struct {
 void tlb_invl(pde_t *pgdir, uintptr_t la);
 
 void pmm_init();
+
+struct PageDesc* pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm);
+
+pte_t* get_pte(pde_t *pgdir, uintptr_t la, int create);
+int page_insert(pde_t *pgdir, struct PageDesc *page, uintptr_t la, uint32_t perm);
