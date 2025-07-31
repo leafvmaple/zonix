@@ -22,7 +22,6 @@ pde_t* boot_pgdir = &__boot_pgdir;
 
 uintptr_t boot_cr3;
 
-
 long user_stack [ PG_SIZE >> 2 ] ;
 
 long* STACK_START = &user_stack [PG_SIZE >> 2];
@@ -162,6 +161,9 @@ static void page_init() {
 
 	extern uint8_t KERNEL_END[];
 
+	cprintf("Kernel End: [0x%x]\n", KERNEL_END);
+	cprintf("Page Director: [0x%x]\n", boot_pgdir);
+
 	npage = PAG_NUM(max_pa);
 	pages = (PageDesc*)ROUND_UP((void *)KERNEL_END, PG_SIZE);
 	
@@ -169,7 +171,7 @@ static void page_init() {
 		SET_PAGE_RESERVED(pages + i);
 	}
 
-	print_pgdir();
+	// print_pgdir();
 	
 	uintptr_t valid_mem = P_ADDR(pages + npage);
 
@@ -183,6 +185,11 @@ static void page_init() {
 			if (addr < limit) {
 				addr = ROUND_UP(addr, PG_SIZE);
 				limit = ROUND_DOWN(limit, PG_SIZE);
+
+				PageDesc *base = pa2page(addr);
+				size_t n = PAG_NUM(limit - addr);
+				
+    			cprintf("Memory Map: [0x%08x, 0x%08x], total=%d\n", base, base + n, n);
 				pmm_mgr->init_memmap(pa2page(addr), PAG_NUM(limit - addr));
 			}
 		}
@@ -192,7 +199,7 @@ static void page_init() {
 
 	// pmm_mgr->check();
 
-	print_pgdir();
+	// print_pgdir();
 }
 
 void tlb_invl(pde_t *pgdir, uintptr_t la) {
