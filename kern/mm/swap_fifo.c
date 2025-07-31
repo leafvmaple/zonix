@@ -3,11 +3,18 @@
 
 #include "swap_fifo.h"
 
+// Page Replacement Algorithm
+
+list_entry_t pra_list_head;
+
 int swap_fifo_init() {
     return 0;
 }
 
 int swap_fifo_init_mm(mm_struct *mm) {
+    list_init(&pra_list_head);
+    mm->swap_list = &pra_list_head;
+
     return 0;
 }
 
