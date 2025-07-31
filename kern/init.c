@@ -6,13 +6,13 @@
 #include "cons/cons.h"
 #include "mm/pmm.h"
 #include "mm/vmm.h"
+#include "mm/swap.h"
 #include "sched/sched.h"
 #include "unistd.h"
 
 static inline _syscall0(int, pause)
 
-__attribute__((noreturn))
-int kern_init(void) {
+__attribute__((noreturn)) int kern_init(void) {
     // drivers
     pic_init();
     hd_init();
@@ -23,8 +23,11 @@ int kern_init(void) {
 
     // module
     cons_init();
+
     pmm_init();
     vmm_init();
+    swap_init();
+
     sched_init();
 
     intr_enable();

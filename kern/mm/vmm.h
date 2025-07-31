@@ -3,7 +3,7 @@
 #include "list.h"
 #include "pmm.h"
 
-typedef struct mm_struct {
+typedef struct {
     list_entry_t mmap_list;         // linear list link which sorted by start addr of vma
     pde_t *pgdir;                   // the PDT of these vma
     int map_count;                  // the count of these vma

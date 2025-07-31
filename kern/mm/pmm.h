@@ -11,18 +11,18 @@ typedef uintptr_t pte_t;   // Page Table Entry
 typedef uintptr_t pde_t;   // Page Directory Entry
 
 // Page descriptor structures
-typedef struct PageDesc {
-    int ref;
+typedef struct {
+    int ref;                   // page frame's reference counter
     uint32_t flags;
-    unsigned int property;
-    list_entry_t page_link;
+    unsigned int property;     // the num of free block, used in first fit pm manager
+    list_entry_t page_link;    // free list link
 } PageDesc;
 
 typedef struct {
     const char *name;
     void (*init)();
     void (*init_memmap)(PageDesc *base, size_t n);
-    struct PageDesc *(*alloc)(size_t n);
+    PageDesc *(*alloc)(size_t n);
     void (*free)(PageDesc *base, size_t n);
     size_t (*nr_free_pages)();
     void (*check)();
@@ -47,7 +47,7 @@ void tlb_invl(pde_t *pgdir, uintptr_t la);
 
 void pmm_init();
 
-struct PageDesc* pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm);
+PageDesc* pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm);
 
 pte_t* get_pte(pde_t *pgdir, uintptr_t la, int create);
-int page_insert(pde_t *pgdir, struct PageDesc *page, uintptr_t la, uint32_t perm);
+int page_insert(pde_t *pgdir, PageDesc *page, uintptr_t la, uint32_t perm);

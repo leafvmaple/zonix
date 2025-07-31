@@ -35,7 +35,8 @@
         "assert.h": "c",
         "intr.h": "c",
         "pg.h": "c",
-        "vmm.h": "c"
+        "vmm.h": "c",
+        "swap_fifo.h": "c"
     },
     "cSpell.words": [
         "ACPI",

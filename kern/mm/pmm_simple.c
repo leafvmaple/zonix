@@ -1,4 +1,4 @@
-#include "simple_pmm.h"
+#include "pmm_simple.h"
 #include "../debug/assert.h"
 
 free_area_t _free;

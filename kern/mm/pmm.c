@@ -13,7 +13,7 @@
 
 #include "x86/intr.h"
 
-#include "simple_pmm.h"
+#include "pmm_simple.h"
 
 #define PAG_NUM(addr) ((addr) >> 12)
 
@@ -26,7 +26,7 @@ long user_stack [ PG_SIZE >> 2 ] ;
 
 long* STACK_START = &user_stack [PG_SIZE >> 2];
 
-const pmm_manager* pmm_mgr;
+const pmm_manager* pmm_mgr = NULL;
 PageDesc *pages = NULL;
 uint32_t npage = 0;
 
@@ -47,7 +47,7 @@ static void pmm_mgr_init() {
     pmm_mgr->init();
 }
 
-struct PageDesc* pages_alloc(size_t n) {
+PageDesc* pages_alloc(size_t n) {
 	PageDesc* pages = NULL;
 
 	uint32_t intr_flag = read_eflags() & FL_IF;
@@ -208,7 +208,7 @@ void tlb_invl(pde_t *pgdir, uintptr_t la) {
     }
 }
 
-struct PageDesc* pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm) {
+PageDesc* pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm) {
 	PageDesc *page = pages_alloc(1);
 	if (page) {
 		page_insert(pgdir, page, la, perm);
@@ -217,7 +217,7 @@ struct PageDesc* pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm) {
 	return page;
 }
 
-int page_insert(pde_t *pgdir, struct PageDesc *page, uintptr_t la, uint32_t perm) {
+int page_insert(pde_t *pgdir, PageDesc *page, uintptr_t la, uint32_t perm) {
 	pte_t *ptep = get_pte(pgdir, la, 1);
 	if (!ptep) {
 		return 0;
