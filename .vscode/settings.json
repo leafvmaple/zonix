@@ -36,7 +36,8 @@
         "intr.h": "c",
         "pg.h": "c",
         "vmm.h": "c",
-        "swap_fifo.h": "c"
+        "e820.h": "c",
+        "idt.h": "c"
     },
     "cSpell.words": [
         "ACPI",

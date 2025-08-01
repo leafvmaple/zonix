@@ -2,6 +2,7 @@
 #include "mmu.h"
 #include "../debug/assert.h"
 #include "../arch/x86/e820.h"
+#include "../drivers/intr.h"
 
 #include "memory.h"
 #include "stdio.h"
@@ -11,7 +12,6 @@
 #include "defs/x86/seg.h"
 #include "defs/x86/intr.h"
 
-#include "x86/intr.h"
 
 #include "pmm_simple.h"
 
@@ -48,29 +48,25 @@ static void pmm_mgr_init() {
 }
 
 PageDesc* pages_alloc(size_t n) {
-	PageDesc* pages = NULL;
+	PageDesc* page = NULL;
 
-	uint32_t intr_flag = read_eflags() & FL_IF;
-	if (intr_flag) {
-		cli();
-	}
-	pages = pmm_mgr->alloc(n);
-	if (intr_flag) {
-		sti();
+	while (1) {
+		intr_save();
+		page = pmm_mgr->alloc(n);
+		intr_restore();
+
+		if (page || n > 1) {
+			break;
+		}
 	}
 
 	return pages;
 }
 
 void pages_free(PageDesc* base, size_t n) {
-	uint32_t intr_flag = read_eflags() & FL_IF;
-	if (intr_flag) {
-		cli();
-	}
+	intr_save();
 	pmm_mgr->free(base, n);
-	if (intr_flag) {
-		sti();
-	}
+	intr_restore();
 }
 
 pte_t* get_pte(pde_t* pgdir, uintptr_t la, int create) {
