@@ -82,3 +82,5 @@ __boot_pt1:
     .long i * PG_SIZE + (PTE_P | PTE_W)
     .set i, i + 1
 .endr
+
+.section .note.GNU-stack,"",@progbits

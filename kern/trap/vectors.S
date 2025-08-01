@@ -1535,3 +1535,5 @@ __vectors:
   .long vector253
   .long vector254
   .long vector255
+
+.section .note.GNU-stack,"",@progbits

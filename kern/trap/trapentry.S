@@ -10,3 +10,5 @@ _trap_entry:
 
     addl $0x8, %esp   # ignore the number and error code
     iret
+
+.section .note.GNU-stack,"",@progbits
