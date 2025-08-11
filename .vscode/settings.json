@@ -37,7 +37,9 @@
         "pg.h": "c",
         "vmm.h": "c",
         "e820.h": "c",
-        "idt.h": "c"
+        "idt.h": "c",
+        "swap.h": "c",
+        "trap.h": "c"
     },
     "cSpell.words": [
         "ACPI",

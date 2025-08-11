@@ -17,9 +17,6 @@
 
 #define PAG_NUM(addr) ((addr) >> 12)
 
-extern pde_t __boot_pgdir;
-pde_t* boot_pgdir = &__boot_pgdir;
-
 uintptr_t boot_cr3;
 
 long user_stack [ PG_SIZE >> 2 ] ;
@@ -47,20 +44,14 @@ static void pmm_mgr_init() {
     pmm_mgr->init();
 }
 
-PageDesc* pages_alloc(size_t n) {
-	PageDesc* page = NULL;
+PageDesc *alloc_pages(size_t n) {
+	PageDesc *page = NULL;
 
-	while (1) {
-		intr_save();
-		page = pmm_mgr->alloc(n);
-		intr_restore();
+	intr_save();
+	page = pmm_mgr->alloc(n);
+	intr_restore();
 
-		if (page || n > 1) {
-			break;
-		}
-	}
-
-	return pages;
+	return page;
 }
 
 void pages_free(PageDesc* base, size_t n) {
@@ -73,7 +64,7 @@ pte_t* get_pte(pde_t* pgdir, uintptr_t la, int create) {
     pde_t* pdep = pgdir + PDX(la);
     if (!(*pdep & PTE_P)) {
         PageDesc* page;
-        if (!create || (page = pages_alloc(1)) == NULL) {
+        if (!create || (page = alloc_pages(1)) == NULL) {
             return NULL;
         }
         page->ref = 1;
@@ -83,18 +74,6 @@ pte_t* get_pte(pde_t* pgdir, uintptr_t la, int create) {
         *pdep = pa | PTE_USER;
     }
     return (pte_t*)K_ADDR(PDE_ADDR(*pdep)) + PTX(la);
-}
-
-// fill all entries in page directory
-static void pgdir_init(pde_t* pgdir, uintptr_t la, size_t size, uintptr_t pa, uint32_t perm) {
-	size_t n = ROUND_UP(size, PG_SIZE) / PG_SIZE;
-    la = ROUND_DOWN(la, PG_SIZE);
-    pa = ROUND_DOWN(pa, PG_SIZE);
-    for (; n > 0; n--, la += PG_SIZE, pa += PG_SIZE) {
-        pte_t* ptep = get_pte(pgdir, la, 1);
-        assert(ptep);
-        *ptep = pa | PTE_P | perm;
-    }
 }
 
 static int get_pgtable_items(size_t start, size_t limit, uintptr_t *table, size_t *left, size_t *right) {
@@ -141,9 +120,6 @@ void print_pgdir() {
 static void page_init() {
 	uint64_t max_pa = 0, addr, size;
 
-	boot_cr3 = P_ADDR(boot_pgdir);
-	boot_pgdir[PDX(VPT)] = P_ADDR(boot_pgdir) | PTE_P | PTE_W;
-
 	cprintf("e820map: [0x%x]\n", E820_MEM_BASE + KERNEL_BASE);
 
 	int index = 0;
@@ -158,7 +134,6 @@ static void page_init() {
 	extern uint8_t KERNEL_END[];
 
 	cprintf("Kernel End: [0x%x]\n", KERNEL_END);
-	cprintf("Page Director: [0x%x]\n", boot_pgdir);
 
 	npage = PAG_NUM(max_pa);
 	pages = (PageDesc*)ROUND_UP((void *)KERNEL_END, PG_SIZE);
@@ -191,8 +166,6 @@ static void page_init() {
 		}
 	}
 
-	pgdir_init(boot_pgdir, KERNEL_BASE, KERNEL_MEM_SIZE, 0, PTE_W);
-
 	// pmm_mgr->check();
 
 	// print_pgdir();
@@ -204,8 +177,8 @@ void tlb_invl(pde_t *pgdir, uintptr_t la) {
     }
 }
 
-PageDesc* pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm) {
-	PageDesc *page = pages_alloc(1);
+PageDesc *pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm) {
+	PageDesc *page = alloc_pages(1);
 	if (page) {
 		page_insert(pgdir, page, la, perm);
 	}

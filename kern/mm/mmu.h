@@ -8,14 +8,14 @@
 #define PTX_SHIFT 12  // offset of PTX in a linear address
 #define PDX_SHIFT 22  // offset of PDX in a linear address
 
-const int PDE_NUM = 1 << (ADDR_BITS - PDX_SHIFT);  // number of entries in a page directory
-const int PTE_NUM = 1 << (PDX_SHIFT - PTX_SHIFT);  // number of entries in a
+#define PDE_NUM     (1 << (ADDR_BITS - PDX_SHIFT))  // number of entries in a page directory
+#define PTE_NUM     (1 << (PDX_SHIFT - PTX_SHIFT))  // number of entries in a
 
-const int PDX_MASK = PDE_NUM - 1;  // mask for PDX
-const int PTX_MASK = PTE_NUM - 1;  // mask for PTX
-const int PG_MASK  = PG_SIZE - 1;  // size of a page in bytes
+#define PDX_MASK (PDE_NUM - 1)  // mask for PDX
+#define PTX_MASK (PTE_NUM - 1)  // mask for PTX
+#define PG_MASK  (PG_SIZE - 1)  // size of a page in bytes
 
-const int PT_SIZE  = PG_SIZE * PTE_NUM;  // bytes mapped by a page directory entry
+#define PT_SIZE  (PG_SIZE * PTE_NUM)  // bytes mapped by a page directory entry
 
 // page directory index
 #define PDX(la) ((((uintptr_t)(la)) >> PDX_SHIFT) & PDX_MASK)

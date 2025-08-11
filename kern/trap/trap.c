@@ -14,7 +14,7 @@
 
 #define TICK_NUM 100
 
-static const char * trap_name(int trapno) {
+static const char *trap_name(int trapno) {
     static const char *const excnames[] = {
         "Divide error",
         "Debug",

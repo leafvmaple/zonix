@@ -13,3 +13,6 @@ int swap_init() {
     
     return 0;
 }
+
+int swap_in(mm_struct *mm, uintptr_t addr, PageDesc **page) {
+}

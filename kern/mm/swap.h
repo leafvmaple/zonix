@@ -11,3 +11,5 @@ typedef struct {
 } swap_manager;
 
 int swap_init();
+int swap_in(mm_struct *mm, uintptr_t addr, PageDesc **page);
+int swap_out(mm_struct *mm, uintptr_t addr, PageDesc *page);
