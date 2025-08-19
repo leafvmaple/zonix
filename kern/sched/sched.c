@@ -1,6 +1,6 @@
 #include "sched.h"
-#include "types.h"
-#include "arch/x86/x86_struct.h"
+#include <base/types.h>
+#include <arch/x86/segments.h>
 
 extern struct seg_desc __gdt[];
 

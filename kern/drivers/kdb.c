@@ -1,10 +1,10 @@
 #include "kdb.h"
 
-#include "defs/drivers/i8042.h"
-#include "defs/drivers/i8259.h"
+#include <arch/x86/drivers/i8042.h>
+#include <arch/x86/drivers/i8259.h>
 
-#include "types.h"
-#include "io.h"
+#include <base/types.h>
+#include <arch/x86/io.h>
 
 #include "pic.h"
 

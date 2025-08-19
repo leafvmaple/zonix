@@ -1,7 +1,9 @@
-#include "defs/x86/seg.h"
-#include "defs/x86/cr.h"
-#include "elf.h"
-#include "io.h"
+#include <arch/x86/asm/seg.h>
+#include <arch/x86/asm/cr.h>
+
+#include <arch/x86/io.h>
+
+#include <base/elf.h>
 
 #define SECT_SIZE 512
 

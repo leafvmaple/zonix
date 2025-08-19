@@ -1,6 +1,6 @@
 #include "e820.h"
 
-#include "defs/x86/seg.h"
+#include <arch/x86/segments.h>
 
 #define E820_MAX 20  // number of entries in E820MAP
 

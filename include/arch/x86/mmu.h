@@ -1,7 +1,7 @@
 #pragma once
 
-#include "defs/x86/pg.h"
-#include "defs/x86/seg.h"
+#include "asm/pg.h"
+#include "asm/seg.h"
 
 #define ADDR_BITS 32  // address length in bits
 

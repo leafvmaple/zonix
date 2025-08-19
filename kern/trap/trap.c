@@ -1,11 +1,11 @@
 #include "trap.h"
 
 #include "unistd.h"
-#include "types.h"
+#include <base/types.h>
 #include "stdio.h"
-#include "io.h"
 
-#include "defs/drivers/i8259.h"
+#include <arch/x86/io.h>
+#include <arch/x86/drivers/i8259.h>
 
 #include "../drivers/kdb.h"
 #include "../drivers/pit.h"

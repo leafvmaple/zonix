@@ -1,8 +1,7 @@
 #pragma once
 
-#include "arch/x86/x86.h"
-#include "defs/x86/intr.h"
-#include "io.h"
+#include <arch/x86/io.h>
+#include <arch/x86/cpu.h>
 
 void intr_enable(void);
 void intr_disable(void);

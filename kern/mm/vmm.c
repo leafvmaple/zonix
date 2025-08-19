@@ -1,14 +1,13 @@
 
 
-#include "defs/x86/pg.h"
-#include "defs/x86/seg.h"
-#include "defs/x86/intr.h"
+#include <arch/x86/io.h>
+#include <arch/x86/segments.h>
+#include <arch/x86/mmu.h>
 
 #include "math.h"
 #include "stdio.h"
 #include "../trap/trap.h"
 
-#include "mmu.h"
 #include "vmm.h"
 #include "swap.h"
 

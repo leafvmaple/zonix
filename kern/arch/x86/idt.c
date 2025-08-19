@@ -1,7 +1,8 @@
 #include "idt.h"
 
-#include "desc.h"
-#include "types.h"
+#include <base/types.h>
+#include <arch/x86/segments.h>
+
 #include "unistd.h"
 
 extern gate_desc __idt[];

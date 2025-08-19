@@ -1,6 +1,6 @@
 #include "hd.h"
 
-#include "defs/drivers/i8259.h"
+#include <arch/x86/drivers/i8259.h>
 #include "pic.h"
 
 void hd_init(void) {

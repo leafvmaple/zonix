@@ -1,5 +1,4 @@
 #include "pmm.h"
-#include "mmu.h"
 #include "../debug/assert.h"
 #include "../arch/x86/e820.h"
 #include "../drivers/intr.h"
@@ -8,10 +7,10 @@
 #include "stdio.h"
 #include "math.h"
 
-#include "defs/x86/pg.h"
-#include "defs/x86/seg.h"
-#include "defs/x86/intr.h"
-
+#include <arch/x86/io.h>
+#include <arch/x86/cpu.h>
+#include <arch/x86/segments.h>
+#include <arch/x86/mmu.h>
 
 #include "pmm_simple.h"
 

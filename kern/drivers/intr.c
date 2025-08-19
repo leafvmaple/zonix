@@ -1,5 +1,6 @@
 #include "intr.h"
-#include "arch/x86/x86.h"
+
+#include <arch/x86/io.h>
 
 /* intr_enable - enable irq interrupt */
 void intr_enable(void) {

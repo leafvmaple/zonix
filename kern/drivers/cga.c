@@ -1,8 +1,8 @@
 #include "cga.h"
 
-#include "types.h"
-#include "io.h"
-#include "defs/x86/seg.h"
+#include <base/types.h>
+#include <arch/x86/io.h>
+#include <arch/x86/segments.h>
 
 #define CGA_IDX_REG  0x3D4
 #define CGA_DATA_REG 0x3D5

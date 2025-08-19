@@ -1,8 +1,8 @@
 #pragma once
 
-#include "defs/x86/seg.h"
+#include "asm/seg.h"
 
-typedef struct gate_desc {
+typedef struct {
     unsigned gd_off_15_0  : 16;  // low 16 bits of offset in segment
     unsigned gd_ss        : 16;  // segment selector
     unsigned gd_args      : 5;   // # args, 0 for interrupt/trap gates
@@ -71,7 +71,7 @@ struct seg_desc {
         (seg)->sd_base_31_24 = (unsigned)(base) >> 24; \
     }
 
-struct tss_struct {
+typedef struct tss_struct {
 	long	back_link;	/* 16 high bits zero */
 	long	esp0;
 	long	ss0;		/* 16 high bits zero */
@@ -95,4 +95,4 @@ struct tss_struct {
 	long	gs;		/* 16 high bits zero */
 	long	ldt;		/* 16 high bits zero */
 	long	trace_bitmap;	/* bits: trace 0, bitmap 16-31 */
-};
+} tss_struct;

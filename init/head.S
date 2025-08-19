@@ -1,6 +1,6 @@
-#include "defs/x86/pg.h"
-#include "defs/x86/seg.h"
-#include "defs/x86/cr.h"
+#include "arch/x86/asm/pg.h"
+#include "arch/x86/asm/seg.h"
+#include "arch/x86/asm/cr.h"
 
 #define REALLOC(x) (x - KERNEL_BASE)
 

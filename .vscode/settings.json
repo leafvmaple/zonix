@@ -39,7 +39,11 @@
         "e820.h": "c",
         "idt.h": "c",
         "swap.h": "c",
-        "trap.h": "c"
+        "trap.h": "c",
+        "ports.h": "c",
+        "*.bak": "c",
+        "segments.h": "c",
+        "mmu.h": "c"
     },
     "cSpell.words": [
         "ACPI",

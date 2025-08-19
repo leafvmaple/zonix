@@ -1,6 +1,7 @@
 #pragma once
 
-#include "arch/x86/x86_struct.h"
+#include <arch/x86/segments.h>
+
 #include "../mm/vmm.h"
 
 #define FIRST_TSS_ENTRY 4

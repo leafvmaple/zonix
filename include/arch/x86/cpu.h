@@ -1,24 +1,6 @@
 #pragma once
 
-// BIOS Interrupt
-
-#define SMAP 0x534D4150 // 'SMAP'
-
-#define INT_DISK 0x13   // BIOS Disk Services
-#define INT_ESI  0x15   // BIOS Extended Services Interface
-
-#define INT_DISK_DL_HDD 0x80
-#define INT_DISK_AH_LAB_READ 0x42
-
-#define INT_ESI_AX_E820 0xE820
-
-#define INT_ESI_DESC_SIZE 20
-#define INT_ESI_ERROR_CODE 0xFFFF
-
-#define GEN_DAP(sectors,offset,segment,lba) \
-    .byte 0x10, 0x00;    \
-    .word sectors, offset, segment; \
-    .quad lba
+#include <base/types.h>
 
 /* Eflags register */
 #define FL_CF 0x00000001         // Carry Flag
@@ -42,3 +24,14 @@
 #define FL_VIF 0x00080000        // Virtual Interrupt Flag
 #define FL_VIP 0x00100000        // Virtual Interrupt Pending
 #define FL_ID 0x00200000         // ID flag
+
+static inline void sti(void) __attribute__((always_inline));
+static inline void cli(void) __attribute__((always_inline));
+
+static inline void sti(void) {
+    asm volatile("sti");
+}
+
+static inline void cli(void) {
+    asm volatile("cli" ::: "memory");
+}

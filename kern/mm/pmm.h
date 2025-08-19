@@ -1,7 +1,8 @@
 #pragma once
 
-#include "types.h"
-#include "io.h"
+#include <base/types.h>
+#include <arch/x86/cpu.h>
+
 #include "list.h"
 
 #define PG_RESERVED 0

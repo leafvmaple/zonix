@@ -4,9 +4,10 @@
 #include "../drivers/pic.h"
 #include "../drivers/kdb.h"
 
-#include "defs/drivers/i8259.h"
-#include "defs/drivers/i8042.h"
-#include "defs/x86/seg.h"
+#include <arch/x86/drivers/i8259.h>
+#include <arch/x86/drivers/i8042.h>
+#include <arch/x86/segments.h>
+
 #include "stdio.h"
 
 extern uint8_t KERNEL_START[];

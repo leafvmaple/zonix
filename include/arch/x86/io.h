@@ -1,6 +1,7 @@
 #pragma once
 
-#include "types.h"
+#include <base/types.h>
+#include <arch/x86/asm/ports.h>
 
 static inline uint8_t inb(uint16_t port) __attribute__((always_inline));
 static inline uint8_t inb_p(uint16_t port) __attribute__((always_inline));
