@@ -1,0 +1,248 @@
+name: Sync to Public Repository
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (preview changes without pushing)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout private repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整历史以便对比
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Git config
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+      
+      - name: Add public repository as remote
+        run: |
+          git remote add public git@github.com:leafvmaple/zonix.git || true
+          git remote set-url public git@github.com:leafvmaple/zonix.git
+      
+      - name: Setup SSH key for public repository
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PUBLIC_REPO_SSH_KEY }}
+      
+      - name: Fetch public repository
+        run: |
+          git fetch public || echo "Warning: Could not fetch public repository (may be empty)"
+      
+      - name: Compare repositories and generate diff
+        id: compare
+        run: |
+          echo "## Repository Comparison" > comparison.md
+          echo "" >> comparison.md
+          
+          # 获取公共仓库的最新提交（处理空仓库情况）
+          PUBLIC_COMMIT=""
+          if git rev-parse --verify public/main >/dev/null 2>&1; then
+            PUBLIC_COMMIT=$(git rev-parse public/main)
+          elif git rev-parse --verify public/master >/dev/null 2>&1; then
+            PUBLIC_COMMIT=$(git rev-parse public/master)
+          fi
+          PRIVATE_COMMIT=$(git rev-parse HEAD)
+          
+          echo "Public repo commit: $PUBLIC_COMMIT" >> comparison.md
+          echo "Private repo commit: $PRIVATE_COMMIT" >> comparison.md
+          echo "" >> comparison.md
+          
+          if [ -z "$PUBLIC_COMMIT" ]; then
+            echo "⚠️ Public repository appears to be empty or unreachable" >> comparison.md
+            echo "Will push entire repository..." >> comparison.md
+            HAS_CHANGES=true
+          else
+            # 检查是否有差异
+            if git diff --quiet $PUBLIC_COMMIT HEAD; then
+              echo "✅ No differences found between repositories" >> comparison.md
+              HAS_CHANGES=false
+            else
+              echo "📊 Differences found!" >> comparison.md
+              echo "" >> comparison.md
+              HAS_CHANGES=true
+              
+              # 统计差异
+              echo "### File Statistics" >> comparison.md
+              echo '```' >> comparison.md
+              git diff --stat $PUBLIC_COMMIT HEAD >> comparison.md
+              echo '```' >> comparison.md
+              echo "" >> comparison.md
+              
+              # 收集提交日志
+              echo "### Commit History (commits not in public repo)" >> comparison.md
+              echo '```' >> comparison.md
+              git log $PUBLIC_COMMIT..HEAD --oneline >> comparison.md
+              echo '```' >> comparison.md
+              echo "" >> comparison.md
+              
+              # 生成详细的提交信息用于合并
+              echo "### Detailed Commit Messages" >> comparison.md
+              git log $PUBLIC_COMMIT..HEAD --pretty=format:"- %s (%h - %an, %ad)" --date=short >> comparison.md
+              echo "" >> comparison.md
+            fi
+          fi
+          
+          echo "has_changes=$HAS_CHANGES" >> $GITHUB_OUTPUT
+          
+          cat comparison.md
+      
+      - name: Generate consolidated commit message
+        if: steps.compare.outputs.has_changes == 'true'
+        id: commit_msg
+        run: |
+          # 获取公共仓库的最新提交
+          PUBLIC_COMMIT=""
+          if git rev-parse --verify public/main >/dev/null 2>&1; then
+            PUBLIC_COMMIT=$(git rev-parse public/main)
+          elif git rev-parse --verify public/master >/dev/null 2>&1; then
+            PUBLIC_COMMIT=$(git rev-parse public/master)
+          fi
+          
+          # 创建合并提交信息
+          if [ -n "$PUBLIC_COMMIT" ]; then
+            # 增量同步：汇总差异期间的提交日志
+            cat > commit_message.txt <<'COMMIT_MSG'
+          Sync from private repository
+          
+          This commit consolidates changes from the private repository.
+          
+          Changes summary:
+          COMMIT_MSG
+            echo "" >> commit_message.txt
+            git log $PUBLIC_COMMIT..HEAD --pretty=format:"- %s" >> commit_message.txt
+            echo "" >> commit_message.txt
+            echo "" >> commit_message.txt
+            echo "Files changed:" >> commit_message.txt
+            git diff --stat $PUBLIC_COMMIT HEAD >> commit_message.txt
+          else
+            # 首次同步：只写功能说明
+            cat > commit_message.txt <<'COMMIT_MSG'
+          Initial commit: Zonix Operating System
+          
+          Zonix is a minimal x86 operating system kernel featuring:
+          
+          - Bootloader with protected mode initialization
+          - Memory management (PMM with first-fit, VMM with paging)
+          - Interrupt handling (IDT, PIC, PIT)
+          - Device drivers (CGA, keyboard, hard disk)
+          - Process scheduling framework
+          - Swap system with FIFO algorithm
+          - Shell console interface
+          - System call interface
+          
+          Architecture: x86 (32-bit)
+          Build system: Make + GNU toolchain
+          Emulator support: Bochs, QEMU
+          COMMIT_MSG
+          fi
+          
+          cat commit_message.txt
+      
+      - name: Create new commit with squashed changes
+        if: steps.compare.outputs.has_changes == 'true'
+        run: |
+          # 获取公共仓库的最新提交
+          PUBLIC_COMMIT=""
+          if git rev-parse --verify public/main >/dev/null 2>&1; then
+            PUBLIC_COMMIT=$(git rev-parse public/main)
+          elif git rev-parse --verify public/master >/dev/null 2>&1; then
+            PUBLIC_COMMIT=$(git rev-parse public/master)
+          fi
+          
+          if [ -z "$PUBLIC_COMMIT" ]; then
+            # 首次同步：创建全新的孤立分支
+            echo "� Creating initial commit for public repository..."
+            
+            # 创建孤立分支（没有历史记录）
+            git checkout --orphan public-sync
+            
+            # 添加所有文件
+            git add -A
+            
+            # 移除 workflow 相关文件（对公共仓库无意义）
+            git reset HEAD .github/workflows/ 2>/dev/null || true
+            git clean -fd .github/workflows/ 2>/dev/null || true
+            
+            # 创建初始提交
+            git commit -F commit_message.txt
+            
+            echo "✅ Created initial commit without history (workflows excluded)"
+          else
+            # 增量同步：基于公共仓库创建新提交
+            echo "📦 Creating consolidated commit..."
+            
+            # 切换到公共仓库的最新状态
+            git checkout -b public-sync public/main || git checkout -b public-sync public/master
+            
+            # 复制私有仓库的所有文件（使用 git checkout 获取文件内容）
+            git checkout ${GITHUB_SHA} -- .
+            
+            # 移除 workflow 相关文件（对公共仓库无意义）
+            git rm -rf .github/workflows/ 2>/dev/null || true
+            git reset HEAD .github/workflows/ 2>/dev/null || true
+            git clean -fd .github/workflows/ 2>/dev/null || true
+            
+            # 检查是否有变化
+            if git diff --cached --quiet && git diff --quiet; then
+              echo "⚠️ No changes to commit"
+              exit 0
+            fi
+            
+            # 添加所有变更
+            git add -A
+            
+            # 创建合并提交
+            git commit -F commit_message.txt
+            
+            echo "✅ Created consolidated commit (workflows excluded)"
+          fi
+      
+      - name: Push to public repository
+        if: steps.compare.outputs.has_changes == 'true' && github.event.inputs.dry_run == 'false'
+        run: |
+          echo "📤 Pushing to public repository..."
+          git push public public-sync:main --force
+          echo "✅ Successfully pushed to public repository"
+      
+      - name: Upload comparison report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-comparison-report
+          path: |
+            comparison.md
+            commit_message.txt
+          retention-days: 30
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.compare.outputs.has_changes }}" == "true" ]; then
+            if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
+              echo "🔍 **Dry Run Mode** - No changes were pushed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ **Sync Completed** - Changes pushed to public repository" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "ℹ️ **No Changes** - Repositories are already in sync" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat comparison.md >> $GITHUB_STEP_SUMMARY

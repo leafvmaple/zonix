@@ -1,0 +1,16 @@
+Initial commit: Zonix Operating System
+
+Zonix is a minimal x86 operating system kernel featuring:
+
+- Bootloader with protected mode initialization
+- Memory management (PMM with first-fit, VMM with paging)
+- Interrupt handling (IDT, PIC, PIT)
+- Device drivers (CGA, keyboard, hard disk)
+- Process scheduling framework
+- Swap system with FIFO algorithm
+- Shell console interface
+- System call interface
+
+Architecture: x86 (32-bit)
+Build system: Make + GNU toolchain
+Emulator support: Bochs, QEMU
