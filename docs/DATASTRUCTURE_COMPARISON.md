@@ -371,7 +371,7 @@ void try_to_unmap(struct page *page, enum ttu_flags flags);
 
 **Zonix 定义** (`kern/sched/sched.h`):
 ```c
-struct task_struct {
+task_struct {
     char name[32];          // 进程名
     int pid;                // 进程 ID
     mm_struct *mm;          // 内存管理结构
@@ -379,14 +379,14 @@ struct task_struct {
 };
 ```
 
-**Linux 对应**: `struct task_struct` (`include/linux/sched.h`)
+**Linux 对应**: `task_struct` (`include/linux/sched.h`)
 
 **对比分析**:
 
 Linux 的 `task_struct` 是最庞大的内核结构之一（约 **1500+ 行代码**！），包含：
 
 ```c
-struct task_struct {
+task_struct {
     // 1. 进程状态
     volatile long state;             // -1: 不可运行, 0: 可运行, >0: 停止
     unsigned int flags;              // PF_* 标志
@@ -405,11 +405,11 @@ struct task_struct {
     cpumask_t cpus_mask;             // CPU 掩码
     
     // 3. 进程关系
-    struct task_struct *real_parent; // 真实父进程
-    struct task_struct *parent;      // PPID（可能是 ptrace 的追踪者）
+    task_struct *real_parent; // 真实父进程
+    task_struct *parent;      // PPID（可能是 ptrace 的追踪者）
     struct list_head children;       // 子进程链表
     struct list_head sibling;        // 兄弟进程链表
-    struct task_struct *group_leader;// 线程组领导
+    task_struct *group_leader;// 线程组领导
     
     // 4. 进程标识
     pid_t pid;                       // 进程 ID
@@ -455,7 +455,7 @@ struct task_struct {
     
     // 14. 追踪/调试
     unsigned long ptrace;            // Ptrace 标志
-    struct task_struct *ptracer;     // Ptrace 追踪者
+    task_struct *ptracer;     // Ptrace 追踪者
     
     // 15. 资源限制
     struct rlimit rlim[RLIM_NLIMITS];
@@ -549,7 +549,7 @@ struct tss_struct {
 
 **Linux 的上下文切换** (`arch/x86/kernel/process.c`):
 ```c
-__switch_to(struct task_struct *prev, struct task_struct *next) {
+__switch_to(task_struct *prev, task_struct *next) {
     // 1. 切换 esp0（内核栈指针）
     load_sp0(next->thread.sp0);
     
@@ -976,11 +976,11 @@ struct list_head {
 })
 
 // 使用示例
-struct task_struct *task;
+task_struct *task;
 struct list_head *pos;
 
 list_for_each(pos, &task_list) {
-    task = container_of(pos, struct task_struct, tasks);
+    task = container_of(pos, task_struct, tasks);
     // 处理 task
 }
 ```

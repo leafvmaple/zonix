@@ -38,6 +38,10 @@ __attribute__((noreturn)) int kern_init(void) {
     // Start interactive shell
     shell_init();
 
-    while (1);
+    // Idle loop: continuously schedule processes
+    // Init process will print the first prompt when it starts
+    while (1) {
+        schedule();  // Let scheduler pick init or other processes
+    }
     // while (1) pause();
 }

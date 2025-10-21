@@ -44,6 +44,9 @@ typedef struct {
 #define CLEAR_PAGE_RESERVED(page) (CLEAR_BIT((page), PG_RESERVED))
 #define PAGE_RESERVED(page) (TEST_BIT((page), PG_RESERVED))
 
+#define alloc_page() alloc_pages(1)
+#define free_page(page) pages_free((page), 1)
+
 void tlb_invl(pde_t *pgdir, uintptr_t la);
 
 void pmm_init();
@@ -53,7 +56,17 @@ PageDesc* pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm);
 pte_t* get_pte(pde_t *pgdir, uintptr_t la, int create);
 int page_insert(pde_t *pgdir, PageDesc *page, uintptr_t la, uint32_t perm);
 
+// Page allocation functions
+PageDesc *alloc_pages(size_t n);
+void pages_free(PageDesc* base, size_t n);
+
 // Helper functions for page address conversion
 void* page2kva(PageDesc *page);
 uintptr_t page2pa(PageDesc *page);
 PageDesc* pa2page(uintptr_t pa);
+PageDesc* kva2page(void *kva);
+
+// Memory allocation functions
+void* kmalloc(size_t size);
+void kfree(void* ptr);
+

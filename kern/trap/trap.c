@@ -12,6 +12,7 @@
 #include "../drivers/pic.h"
 #include "../cons/cons.h"
 #include "../mm/vmm.h"
+#include "../sched/sched.h"
 
 #define TICK_NUM 100
 
@@ -90,13 +91,11 @@ static void irq_kbd(trap_frame *tf) {
     }
 }
 
-extern mm_struct init_mm;
-
 static int pg_fault(trap_frame *tf) {
     print_trapframe(tf);
     print_pgfault(tf);
 
-    vmm_pg_fault(&init_mm, tf->tf_err, rcr2());
+    vmm_pg_fault(current->mm, tf->tf_err, rcr2());
 
     return 0;
 }

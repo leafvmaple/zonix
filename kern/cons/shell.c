@@ -5,6 +5,7 @@
 #include "../mm/swap_test.h"
 #include "../drivers/hd.h"
 #include "../drivers/blk.h"
+#include "../sched/sched.h"
 
 #include <base/types.h>
 #include <kernel/sysinfo.h>
@@ -108,6 +109,10 @@ static void cmd_uname_a(void) {
            SYSINFO_VERSION, SYSINFO_MACHINE);
 }
 
+static void cmd_ps(void) {
+    print_all_procs();
+}
+
 // Command table
 shell_cmd_t commands[] = {
     {"help",     "Show this help message", cmd_help},
@@ -120,6 +125,7 @@ shell_cmd_t commands[] = {
     {"dd",       "Disk dump/copy (info only)", cmd_dd},
     {"uname -a", "Print all system information", cmd_uname_a},
     {"uname",    "Print system information", cmd_uname},
+    {"ps",       "List all processes", cmd_ps},
 };
 
 int command_count = sizeof(commands) / sizeof(shell_cmd_t);
@@ -174,7 +180,7 @@ void shell_init(void) {
     cprintf("  Welcome to Zonix OS Interactive Console\n");
     cprintf("  Type 'help' to see available commands\n");
     cprintf("=============================================\n");
-    shell_prompt();
+    // Don't print prompt yet - wait until system is fully ready
 }
 
 void shell_handle_char(char c) {

@@ -25,6 +25,10 @@ static inline  __attribute__((always_inline)) list_entry_t* list_next(list_entry
     return l->next;
 }
 
+static inline  __attribute__((always_inline)) list_entry_t* list_prev(list_entry_t *l){
+    return l->prev;
+}
+
 static inline __attribute__((always_inline)) void list_add_before(list_entry_t *l, list_entry_t *elm) {
     __list_add(elm, l->prev, l);
 }

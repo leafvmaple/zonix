@@ -44,8 +44,7 @@ static int tests_failed = 0;
 
 void test_fifo_basic() {
     TEST_START("FIFO Basic Operation");
-    
-    mm_struct mm = *init_mm;
+
     swap_mgr_fifo.init_mm(init_mm);
     
     PageDesc pages[5];
@@ -303,8 +302,7 @@ void test_algorithm_comparison() {
     
     for (int i = 0; i < 1; i++) {  // Changed from 3 to 1
         cprintf("    %s\n", algorithms[i]->name);
-        
-        mm_struct mm;
+
         algorithms[i]->init_mm(init_mm);
         
         PageDesc pages[20];

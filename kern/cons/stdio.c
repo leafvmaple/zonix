@@ -64,6 +64,57 @@ void print_num(va_list* args, int base, int lflag, int width, char padc, int lef
     }
 }
 
+void print_signed_num(va_list* args, int base, int lflag, int width, char padc, int left_align) {
+    int64_t signed_num = lflag ? va_arg(*args, int64_t) : va_arg(*args, int32_t);
+    uint64_t num;
+    int is_negative = 0;
+    
+    // Handle negative numbers
+    if (signed_num < 0) {
+        is_negative = 1;
+        num = -signed_num;
+    } else {
+        num = signed_num;
+    }
+    
+    if (left_align) {
+        // Left-aligned: print sign and number first, then padding
+        if (is_negative) {
+            cons_putc('-');
+        }
+        int num_digits = get_num_digits(num, base);
+        print_digit_no_pad(num, base);
+        int total_width = num_digits + (is_negative ? 1 : 0);
+        for (int i = total_width; i < width; i++) {
+            cons_putc(' ');
+        }
+    } else {
+        // Right-aligned: handle padding
+        int num_digits = get_num_digits(num, base);
+        int total_width = num_digits + (is_negative ? 1 : 0);
+        
+        // Print padding
+        if (padc == '0' && is_negative) {
+            // If padding with 0 and negative, print sign first
+            cons_putc('-');
+            for (int i = total_width; i < width; i++) {
+                cons_putc('0');
+            }
+        } else {
+            // Otherwise print padding first, then sign
+            for (int i = total_width; i < width; i++) {
+                cons_putc(padc);
+            }
+            if (is_negative) {
+                cons_putc('-');
+            }
+        }
+        
+        // Print the number
+        print_digit_no_pad(num, base);
+    }
+}
+
 void print_str(va_list* args, int width, int left_align) {
     char* s = va_arg(*args, char*);
     int len = 0;
@@ -134,6 +185,10 @@ int cprintf(const char *fmt, ...) {
                 status = FMT_NONE;
                 break;
             case 'd':
+                print_signed_num(&args, 10, lflag, width, padc, left_align);
+                status = FMT_NONE;
+                break;
+            case 'u':
                 print_num(&args, 10, lflag, width, padc, left_align);
                 status = FMT_NONE;
                 break;

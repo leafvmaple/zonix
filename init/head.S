@@ -19,6 +19,13 @@ next:
     xorl %eax, %eax
     movl %eax, __boot_pgdir
 
+    # Clear BSS section (zero-initialize global/static variables)
+    movl $__bss_start, %edi
+    movl $__bss_end, %ecx
+    subl %edi, %ecx
+    xorl %eax, %eax
+    rep stosb
+
     movl STACK_START, %esp
 
     call kern_init

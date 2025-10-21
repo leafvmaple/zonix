@@ -33,8 +33,11 @@ boot: c
 #config_interface: textconfig
 #config_interface: wx
 
-# display_library: x
+display_library: x
 # other choices: win32 sdl wx carbon amigaos beos macintosh nogui rfb term svga
+
+# Add serial port to file for debugging
+com1: enabled=1, mode=file, dev=serial.out
 
 # where do we send log messages?
 log: bochsout.txt
@@ -42,6 +45,9 @@ logprefix: %t [%i] %e
 debug: action=report
 info: action=report
 error: action=report
+
+# Enable port e9 hack for debug output
+port_e9_hack: enabled=1
 
 # disable the mouse, since DLX is text only
 mouse: enabled=0

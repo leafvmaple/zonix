@@ -221,7 +221,7 @@ typedef struct {
 **作用**: 描述一个进程/任务的所有信息。
 
 ```c
-struct task_struct {
+task_struct {
     char name[32];          // 进程名称
     int pid;                // 进程 ID
     mm_struct *mm;          // 指向内存管理结构

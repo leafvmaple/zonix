@@ -22,5 +22,6 @@ static inline void __intr_restore(int flag) {
 
 #define intr_save()   \
     uint32_t __intr_flag = __intr_save();
+
 #define intr_restore() \
     __intr_restore(__intr_flag);

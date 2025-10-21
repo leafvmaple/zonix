@@ -38,12 +38,17 @@ uintptr_t page2pa(PageDesc *page) {
     return (page - pages) << PG_SHIFT;
 }
 
+void* page2kva(PageDesc *page) {
+    return (void *)(KERNEL_BASE + page2pa(page));
+}
+
 PageDesc* pa2page(uintptr_t pa) {
 	return pages + PAG_NUM(pa);
 }
 
-void* page2kva(PageDesc *page) {
-    return (void *)(KERNEL_BASE + page2pa(page));
+// Convert kernel virtual address to page descriptor
+PageDesc* kva2page(void *kva) {
+    return pa2page(P_ADDR((uintptr_t)kva));
 }
 
 static void pmm_mgr_init() {
@@ -151,6 +156,20 @@ int page_insert(pde_t *pgdir, PageDesc *page, uintptr_t la, uint32_t perm) {
 
 	tlb_invl(pgdir, la);
 	return INSERT_SUCCESS;
+}
+
+// Simple kmalloc/kfree using page allocator
+// For now, always allocate full pages (4KB)
+// TODO: Implement proper slab allocator
+void* kmalloc(size_t size) {
+    PageDesc* page = alloc_page();
+    return page ? page2kva(page) : NULL;
+}
+
+void kfree(void* ptr) {
+    if (ptr) {
+        free_page(kva2page(ptr));
+    }
 }
 
 void pmm_init() {

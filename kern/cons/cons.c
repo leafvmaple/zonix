@@ -3,6 +3,7 @@
 #include <arch/x86/drivers/i8259.h>
 #include <arch/x86/drivers/i8042.h>
 #include <arch/x86/segments.h>
+#include <arch/x86/io.h>
 
 #include "../drivers/cga.h"
 #include "../drivers/pic.h"
@@ -24,4 +25,5 @@ char cons_getc(void) {
 
 void cons_putc(int c) {
     cga_putc(c);
+    outb(0xe9, c);  // Also output to Bochs debug port for logging
 }
